@@ -3,334 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Jocs de Matemàtiques</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #eef4ff, #f8fbff);
+      background:
+        radial-gradient(circle at 10% 10%, rgba(59,130,246,0.12), transparent 20%),
+        radial-gradient(circle at 90% 15%, rgba(168,85,247,0.10), transparent 20%),
+        linear-gradient(135deg, #eef8ff, #ffffff);
       color: #1f2937;
       min-height: 100vh;
     }
-
-    header {
-      text-align: center;
-      padding: 55px 20px 35px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: clamp(34px, 5vw, 58px);
-      color: #243b76;
-    }
-
-    header p {
-      margin-top: 12px;
-      font-size: 18px;
-      color: #5b6472;
-    }
-
-    main {
-      width: min(1100px, 92%);
+    .container {
+      width: min(1200px, 94%);
       margin: 0 auto;
-      padding-bottom: 60px;
     }
-
-    .cursos {
+    .hero {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 24px;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 30px;
+      padding: 45px 0 25px;
     }
-
-    .curs {
+    .hero-text h1 {
+      margin: 0;
+      font-size: clamp(42px, 7vw, 78px);
+      line-height: 0.95;
+      color: #173b7a;
+      letter-spacing: -2px;
+    }
+    .hero-text h1 span {
+      display: block;
+      color: #f8b400;
+      text-shadow: 0 4px 0 #173b7a;
+    }
+    .hero-text p {
+      margin: 24px 0 0;
+      display: inline-block;
+      font-size: clamp(18px, 2.5vw, 28px);
+      font-weight: 700;
+      background: #fff1a8;
+      padding: 10px 20px;
+      border-radius: 999px;
+    }
+    .mole-card {
       background: white;
-      border-radius: 22px;
-      box-shadow: 0 8px 28px rgba(35, 55, 95, 0.12);
+      border-radius: 28px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+    .mole-card img {
+      width: 100%;
+      max-height: 410px;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+    .mole-text {
+      margin-top: 10px;
+      font-size: 15px;
+      line-height: 1.35;
+      color: #4b5563;
+    }
+    .mole-text strong {
+      display: block;
+      font-size: 19px;
+      color: #d97706;
+      margin-bottom: 3px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      padding: 25px 0 40px;
+    }
+    .card {
+      text-decoration: none;
+      color: white;
+      border-radius: 24px;
+      min-height: 190px;
+      padding: 26px;
+      position: relative;
       overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .curs:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 14px 34px rgba(35, 55, 95, 0.16);
+    .card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.20);
     }
-
-    .curs-header {
-      cursor: pointer;
-      padding: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      user-select: none;
+    .card-icon {
+      font-size: 54px;
+      margin-bottom: 16px;
+      font-weight: 800;
     }
-
-    .curs-info {
-      display: flex;
-      align-items: center;
-      gap: 18px;
+    .card h2 {
+      margin: 0;
+      font-size: 32px;
     }
-
-    .icona {
-      width: 64px;
-      height: 64px;
-      border-radius: 18px;
+    .card p {
+      margin: 6px 0 0;
+      font-size: 17px;
+      opacity: 0.95;
+    }
+    .arrow {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 34px;
-      background: #eef3ff;
-    }
-
-    .curs h2 {
-      margin: 0;
-      color: #243b76;
       font-size: 26px;
+      font-weight: bold;
     }
-
-    .curs-subtitle {
-      margin-top: 5px;
-      color: #7a8491;
-      font-size: 14px;
-    }
-
-    .fletxa {
-      font-size: 28px;
-      color: #243b76;
-      transition: transform 0.25s ease;
-    }
-
-    .curs.obert .fletxa {
-      transform: rotate(180deg);
-    }
-
-    .jocs {
-      display: none;
-      padding: 0 24px 24px;
-      animation: aparicio 0.25s ease;
-    }
-
-    .curs.obert .jocs {
-      display: block;
-    }
-
-    @keyframes aparicio {
-      from {
-        opacity: 0;
-        transform: translateY(-6px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .joc {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      background: #f7f9fd;
-      border-radius: 15px;
-      padding: 18px;
-      text-decoration: none;
-      color: inherit;
-      margin-top: 12px;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-
-    .joc:hover {
-      background: #edf2ff;
-      transform: translateX(4px);
-    }
-
-    .joc-icona {
-      font-size: 28px;
-      width: 45px;
-      text-align: center;
-    }
-
-    .joc-text h3 {
-      margin: 0;
-      color: #243b76;
-      font-size: 18px;
-    }
-
-    .joc-text p {
-      margin: 4px 0 0;
-      color: #6d7682;
-      font-size: 14px;
-    }
-
+    .c1 { background: linear-gradient(135deg, #2196f3, #1976d2); }
+    .c1 .arrow { color: #1976d2; }
+    .c3 { background: linear-gradient(135deg, #ff922b, #f76707); }
+    .c3 .arrow { color: #f76707; }
+    .c4 { background: linear-gradient(135deg, #9c6ade, #7048e8); }
+    .c4 .arrow { color: #7048e8; }
+    .tools { background: linear-gradient(135deg, #40c057, #2f9e44); }
+    .tools .arrow { color: #2f9e44; }
     footer {
       text-align: center;
-      color: #8a929d;
-      padding: 25px;
+      color: #52606d;
+      padding: 20px 0 35px;
       font-size: 14px;
     }
-
-    @media (max-width: 750px) {
-      .cursos {
-        grid-template-columns: 1fr;
-      }
-
-      header {
-        padding-top: 35px;
-      }
-
-      .curs-header {
-        padding: 22px;
-      }
+    .math-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+    .math-bg span {
+      position: absolute;
+      font-size: 50px;
+      font-weight: bold;
+      opacity: 0.07;
+      color: #174ea6;
+    }
+    .m1 { top: 5%; left: 3%; transform: rotate(-15deg); }
+    .m2 { top: 12%; right: 6%; transform: rotate(10deg); }
+    .m3 { bottom: 15%; left: 5%; }
+    .m4 { bottom: 8%; right: 5%; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .mole-card { max-width: 600px; margin: auto; }
+    }
+    @media (max-width: 550px) {
+      .cards { grid-template-columns: 1fr; }
+      .hero-text h1 { text-align: center; }
+      .hero-text p { display: block; text-align: center; }
     }
   </style>
 </head>
-
 <body>
+  <div class="math-bg">
+    <span class="m1">x²</span>
+    <span class="m2">√x</span>
+    <span class="m3">π</span>
+    <span class="m4">x + y = 3</span>
+  </div>
 
-  <header>
-    <h1>Jocs de Matemàtiques</h1>
-    <p>Practica, juga i posa't a prova</p>
-  </header>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Jocs de <span>Matemàtiques</span></h1>
+        <p>Practica, juga i posa’t a prova</p>
+      </div>
 
-  <main>
-
-    <div class="cursos">
-
-      <!-- 1r ESO -->
-      <section class="curs">
-        <div class="curs-header" onclick="toggleCurs(this)">
-          <div class="curs-info">
-            <div class="icona">⚡</div>
-            <div>
-              <h2>1r ESO</h2>
-              <div class="curs-subtitle">Nombres, operacions i càlcul</div>
-            </div>
-          </div>
-
-          <div class="fletxa">⌄</div>
+      <div class="mole-card">
+        <img src="mole.png" alt="Apadrina a Mole">
+        <div class="mole-text">
+          <strong>Apadrina a Mole!</strong>
+          El Mole s’alimenta d’exàmens, però les males notes li fan mal de panxa. Ajuda un gosset!
         </div>
+      </div>
+    </section>
 
-        <div class="jocs">
+    <section class="cards">
+      <a class="card c1" href="1rESO/Potencies/">
+        <div class="card-icon">🔢</div>
+        <h2>1r ESO</h2>
+        <p>Nombres i càlcul</p>
+        <div class="arrow">›</div>
+      </a>
 
-          <a class="joc" href="1rESO/Potencies/">
-            <div class="joc-icona">⚡</div>
+      <a class="card c3" href="3rESO/Polinomis/">
+        <div class="card-icon">x³</div>
+        <h2>3r ESO</h2>
+        <p>Àlgebra i polinomis</p>
+        <div class="arrow">›</div>
+      </a>
 
-            <div class="joc-text">
-              <h3>Potències</h3>
-              <p>Practica potències, propietats i operacions.</p>
-            </div>
-          </a>
+      <a class="card c4" href="4tESO/Sistemes/">
+        <div class="card-icon">📐</div>
+        <h2>4t ESO</h2>
+        <p>Equacions i sistemes</p>
+        <div class="arrow">›</div>
+      </a>
 
-        </div>
-      </section>
+      <a class="card tools" href="Calculadora/">
+        <div class="card-icon">🧮</div>
+        <h2>Eines</h2>
+        <p>Calculadora i recursos</p>
+        <div class="arrow">›</div>
+      </a>
+    </section>
 
-
-      <!-- 3r ESO -->
-      <section class="curs">
-        <div class="curs-header" onclick="toggleCurs(this)">
-          <div class="curs-info">
-            <div class="icona">🧩</div>
-            <div>
-              <h2>3r ESO</h2>
-              <div class="curs-subtitle">Àlgebra i polinomis</div>
-            </div>
-          </div>
-
-          <div class="fletxa">⌄</div>
-        </div>
-
-        <div class="jocs">
-
-          <a class="joc" href="3rESO/Polinomis/">
-            <div class="joc-icona">🧩</div>
-
-            <div class="joc-text">
-              <h3>Polinomis</h3>
-              <p>Monomis, polinomis i operacions algebraiques.</p>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-
-      <!-- 4t ESO -->
-      <section class="curs">
-        <div class="curs-header" onclick="toggleCurs(this)">
-          <div class="curs-info">
-            <div class="icona">📈</div>
-            <div>
-              <h2>4t ESO</h2>
-              <div class="curs-subtitle">Equacions i sistemes</div>
-            </div>
-          </div>
-
-          <div class="fletxa">⌄</div>
-        </div>
-
-        <div class="jocs">
-
-          <a class="joc" href="4tESO/Sistemes/">
-            <div class="joc-icona">📈</div>
-
-            <div class="joc-text">
-              <h3>Sistemes d'equacions</h3>
-              <p>Gràfic, substitució, igualació i reducció.</p>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-
-      <!-- Eines -->
-      <section class="curs">
-        <div class="curs-header" onclick="toggleCurs(this)">
-          <div class="curs-info">
-            <div class="icona">🧮</div>
-            <div>
-              <h2>Eines</h2>
-              <div class="curs-subtitle">Recursos útils per treballar</div>
-            </div>
-          </div>
-
-          <div class="fletxa">⌄</div>
-        </div>
-
-        <div class="jocs">
-
-          <a class="joc" href="Calculadora/">
-            <div class="joc-icona">🧮</div>
-
-            <div class="joc-text">
-              <h3>Calculadora</h3>
-              <p>Calculadora científica per treballar a classe.</p>
-            </div>
-          </a>
-
-        </div>
-      </section>
-
-    </div>
-
-  </main>
-
-  <footer>
-    Jocs de Matemàtiques
-  </footer>
-
-
-  <script>
-    function toggleCurs(element) {
-      const curs = element.parentElement;
-      curs.classList.toggle("obert");
-    }
-  </script>
-
+    <footer>IES Josep Mestres i Busquets - Pep M. Vila</footer>
+  </div>
 </body>
 </html>
