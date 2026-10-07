@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ca"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#f8f5e9"><title>Vídeos · Practica Matemàtiques</title>
+<style>
+:root { color-scheme:light; --ink:#20231c; --muted:#555b4d; --pale:#f1f5e7; }
+* { box-sizing:border-box; } [hidden] { display:none!important; }
+body { margin:0; padding:38px 22px; min-height:100vh; font-family:Arial,Helvetica,sans-serif; color:var(--ink); background:#f8f5e9; }
+.page { max-width:1040px; margin:auto; padding:32px; border:2px solid var(--ink); border-radius:22px; background:white; box-shadow:6px 6px 0 var(--ink); }
+.course-label { margin:22px 0 8px; font-size:1rem; color:var(--muted); }
+h1 { font-size:clamp(2rem,5vw,2.75rem); line-height:1.15; letter-spacing:-.035em; margin:0 0 25px; overflow-wrap:anywhere; }
+.actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+a { display:inline-flex; min-height:44px; padding:10px 18px; align-items:center; border:1.5px solid var(--ink); border-radius:7px; font-size:1rem; font-weight:700; color:var(--ink); background:white; text-decoration:none; }
+a:hover { background:var(--pale); } a:focus-visible { outline:3px solid #526b2d; outline-offset:3px; }
+.player { width:100%; aspect-ratio:16/9; border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:#f1f5e7; margin:0 0 22px; }
+iframe { display:block; width:100%; height:100%; border:0; }
+.topic-list { display:flex; gap:12px; flex-wrap:wrap; }
+footer { margin-top:26px; padding-top:19px; border-top:1px solid #d9ddcf; color:var(--muted); font-size:.875rem; line-height:1.5; }
+@media(max-width:640px) { body { padding:23px 14px; } .page { padding:22px 16px; border-radius:17px; box-shadow:4px 4px 0 var(--ink); } .actions a { flex-grow:1; justify-content:center; } .player { border-radius:6px; } }
+</style><style>
+:root { --ink:#182829; --green:#236459; --pale:#eaf3ee; --muted:#526263; }
+body { background:#edf3ef; padding:40px 22px; }
+.page { max-width:940px; padding:42px; background:#fffffff5; border:1px solid #ffffff; border-radius:28px; box-shadow:0 18px 65px #132c3030; backdrop-filter:blur(5px); }
+header { text-align:left; margin-bottom:32px; }
+header::before { content:'EL TEU ESPAI DE MATEMÀTIQUES'; display:block; color:var(--green); font-size:.75rem; font-weight:800; letter-spacing:.14em; margin-bottom:14px; }
+h1 { font-size:clamp(2.2rem,5vw,3.7rem); letter-spacing:-.055em; }
+header p { font-size:1.05rem; }
+.course { border:1.5px solid #253b3c; border-radius:16px; box-shadow:0 4px 0 #253b3c12; }
+.course-toggle { min-height:124px; padding:25px; background:#fff; }
+.course:nth-child(1) { --accent:#eaf4de; } .course:nth-child(2) { --accent:#e2f2f1; } .course:nth-child(3) { --accent:#eee9fa; } .course:nth-child(4) { --accent:#fcebdc; } .course:nth-child(5) { --accent:#e8edf1; }
+.course-toggle:hover,.course-toggle[aria-expanded=true] { background:var(--accent); }
+.course-title { font-size:1.8rem; }
+.toggle-mark { border:1px solid var(--ink); border-radius:50%; width:34px; height:34px; font-size:1.5rem; display:grid; place-items:center; }
+.submenu { border-top:1px solid #253b3c; background:var(--accent); padding:15px; }
+.topic,.game-link { border:1px solid #253b3c60; border-radius:10px; }
+.resource-link { border:1.5px solid var(--ink); border-radius:8px; min-width:98px; }
+.resource-link:first-child { background:var(--ink); color:white; } .resource-link:hover { background:var(--green); color:white; }
+footer { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; text-align:left; }
+.background-picker { display:flex; align-items:center; gap:7px; }
+.background-picker button { width:22px; height:22px; border:1px solid var(--ink); border-radius:50%; background:#fff; color:var(--ink); font:inherit; font-size:11px; cursor:pointer; }
+.background-picker button[aria-pressed=true] { background:var(--ink); color:white; }
+@media(max-width:640px) { body { padding:24px 14px; } .page { padding:28px 20px; } .course-toggle { min-height:100px; padding:20px; } header { text-align:left; } }
+</style><style>.video-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; } .video-controls p { text-align:center; } .video-controls button,#video-list button { padding:12px 16px; min-height:44px; border:1.5px solid var(--ink); border-radius:8px; background:white; color:var(--ink); font:inherit; font-weight:700; cursor:pointer; } .video-controls button:disabled { opacity:.35; cursor:default; } #video-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:10px; margin-bottom:22px; } #video-list button[aria-current=true] { background:var(--ink); color:white; } button:focus-visible { outline:3px solid #236459; outline-offset:3px; } @media(max-width:450px) { .video-controls button { padding:10px; font-size:.875rem; } }</style></head><body><main class="page">
+<nav class="actions" aria-label="Torna als temes"><a id="back-link" href="index.html">Torna als temes</a></nav>
+<p class="course-label" id="course-label" hidden></p><h1 id="topic-title">Vídeos de matemàtiques</h1>
+<section id="video-section" hidden>
+<div class="player"><iframe id="youtube-player" title="Vídeos del tema" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe></div>
+<div class="video-controls"><button id="previous-video" type="button">← Anterior</button><p id="video-position" aria-live="polite"></p><button id="next-video" type="button">Següent →</button></div><nav id="video-list" aria-label="Vídeos del tema"></nav><div class="actions"><a id="game-link" hidden>Juga</a><a id="youtube-link" target="_blank" rel="noopener noreferrer">Obre a YouTube</a></div>
+</section>
+<div class="topic-list" id="topic-list"><a href="videos.html?tema=polinomis">3r ESO · Polinomis</a><a href="videos.html?tema=sistemes">4t ESO · Sistemes d’equacions</a><a href="videos.html?tema=logaritmes">1r Batxiller · Logaritmes</a></div>
+<noscript><p>Tria un vídeo:</p><h2>Sistemes d’equacions</h2><div class="topic-list"><a href="https://www.youtube.com/watch?v=oYKj9C6Blso" target="_blank" rel="noopener noreferrer">Vídeo 1</a><a href="https://www.youtube.com/watch?v=TKSjuIIuTiw" target="_blank" rel="noopener noreferrer">Vídeo 2</a></div><h2>Logaritmes</h2><div class="topic-list"><a href="https://www.youtube.com/watch?v=PJS8UEMqv_k" target="_blank" rel="noopener noreferrer">Vídeo 1</a><a href="https://www.youtube.com/watch?v=hmA3FuSSOIQ" target="_blank" rel="noopener noreferrer">Vídeo 2</a><a href="https://www.youtube.com/watch?v=RJfFCo0VJOA" target="_blank" rel="noopener noreferrer">Vídeo 3</a><a href="https://www.youtube.com/watch?v=ivNyWIRtuOg" target="_blank" rel="noopener noreferrer">Vídeo 4</a><a href="https://www.youtube.com/watch?v=zU9HO21ZSvY" target="_blank" rel="noopener noreferrer">Vídeo 5</a><a href="https://www.youtube.com/watch?v=BbD2mJQWWAQ" target="_blank" rel="noopener noreferrer">Vídeo 6</a></div><h2>Polinomis</h2><div class="topic-list"><a href="https://www.youtube.com/watch?v=sQgR0nDyWQo" target="_blank" rel="noopener noreferrer">Vídeo 1</a><a href="https://www.youtube.com/watch?v=KkOlTQjDEos" target="_blank" rel="noopener noreferrer">Vídeo 2</a><a href="https://www.youtube.com/watch?v=M4LTTmy_Q7Y" target="_blank" rel="noopener noreferrer">Vídeo 3</a><a href="https://www.youtube.com/watch?v=qxHgjKidHgA" target="_blank" rel="noopener noreferrer">Vídeo 4</a><a href="https://www.youtube.com/watch?v=g-vmKCo02zY" target="_blank" rel="noopener noreferrer">Vídeo 5</a><a href="https://www.youtube.com/watch?v=ZQpG0NBkbCE" target="_blank" rel="noopener noreferrer">Vídeo 6</a><a href="https://www.youtube.com/watch?v=OxgtwaTQCZg" target="_blank" rel="noopener noreferrer">Vídeo 7</a></div></noscript>
+<footer>IES Josep Mestres i Busquets · Pep M. Vila</footer>
+</main>
+<script id="video-topics" type="application/json">{"polinomis": {"course": "3r ESO", "title": "Polinomis", "home": "c3", "game": "3rESO/Polinomis/", "videos": ["sQgR0nDyWQo", "KkOlTQjDEos", "M4LTTmy_Q7Y", "qxHgjKidHgA", "g-vmKCo02zY", "ZQpG0NBkbCE", "OxgtwaTQCZg"]}, "sistemes": {"course": "4t ESO", "title": "Sistemes d’equacions", "home": "c4", "game": "4tESO/Sistemes/", "videos": ["oYKj9C6Blso", "TKSjuIIuTiw"]}, "logaritmes": {"course": "1r Batxiller", "title": "Logaritmes", "home": "batx1", "game": null, "videos": ["PJS8UEMqv_k", "hmA3FuSSOIQ", "RJfFCo0VJOA", "ivNyWIRtuOg", "zU9HO21ZSvY", "BbD2mJQWWAQ"]}}</script>
+<script>
+(() => {
+ const topics = JSON.parse(document.getElementById('video-topics').textContent);
+ const key = new URLSearchParams(location.search).get('tema');
+ if (!Object.prototype.hasOwnProperty.call(topics, key)) return;
+ const topic = topics[key];
+ document.title = `${topic.title} · Video · Practica Matemàtiques`;
+ document.getElementById('course-label').textContent = topic.course;
+ document.getElementById('course-label').hidden = false;
+ document.getElementById('topic-title').textContent = topic.title;
+ document.getElementById('back-link').href = `index.html#${topic.home}`;
+ const player = document.getElementById('youtube-player');
+ player.title = `${topic.course} · ${topic.title}`;
+ let current=0;
+ const list=document.getElementById('video-list');
+ const previous=document.getElementById('previous-video');
+ const next=document.getElementById('next-video');
+ const youtube=document.getElementById('youtube-link');
+ youtube.textContent='Obre aquest vídeo a YouTube';
+ topic.videos.forEach((id,index)=>{
+  const button=document.createElement('button');button.type='button';button.textContent=`Vídeo ${index+1}`;
+  button.addEventListener('click',()=>showVideo(index));list.appendChild(button);
+ });
+ function showVideo(index) {
+  current=index;
+  player.src=`https://www.youtube-nocookie.com/embed/${topic.videos[index]}?playsinline=1&rel=0`;
+  player.title=`${topic.course} · ${topic.title} · Vídeo ${index+1}`;
+  youtube.href=`https://www.youtube.com/watch?v=${topic.videos[index]}`;
+  document.getElementById('video-position').textContent=`Vídeo ${index+1} de ${topic.videos.length}`;
+  previous.disabled=index===0;next.disabled=index===topic.videos.length-1;
+  Array.from(list.children).forEach((button,i)=>button.setAttribute('aria-current',String(i===index)));
+ }
+ previous.addEventListener('click',()=>{if(current>0)showVideo(current-1);});
+ next.addEventListener('click',()=>{if(current<topic.videos.length-1)showVideo(current+1);});
+ showVideo(0);
+ if (topic.game) {
+   const game = document.getElementById('game-link');
+   game.href = topic.game;
+   game.hidden = false;
+ }
+ document.getElementById('video-section').hidden = false;
+ document.getElementById('topic-list').hidden = true;
+})();
+</script>
+</body></html>
