@@ -1,0 +1,50 @@
+<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f8f5e9"><title>Vídeos · Practica Matemàtiques</title><style>
+:root { color-scheme:light; --ink:#20231c; --muted:#555b4d; --pale:#f1f5e7; }
+* { box-sizing:border-box; } [hidden] { display:none!important; }
+body { margin:0; padding:38px 22px; min-height:100vh; font-family:Arial,Helvetica,sans-serif; color:var(--ink); background:#f8f5e9; }
+.page { max-width:1040px; margin:auto; padding:32px; border:2px solid var(--ink); border-radius:22px; background:white; box-shadow:6px 6px 0 var(--ink); }
+.course-label { margin:22px 0 8px; font-size:1rem; color:var(--muted); }
+h1 { font-size:clamp(2rem,5vw,2.75rem); line-height:1.15; letter-spacing:-.035em; margin:0 0 25px; overflow-wrap:anywhere; }
+.actions { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+a { display:inline-flex; min-height:44px; padding:10px 18px; align-items:center; border:1.5px solid var(--ink); border-radius:7px; font-size:1rem; font-weight:700; color:var(--ink); background:white; text-decoration:none; }
+a:hover { background:var(--pale); } a:focus-visible { outline:3px solid #526b2d; outline-offset:3px; }
+.player { width:100%; aspect-ratio:16/9; border:1.5px solid var(--ink); border-radius:10px; overflow:hidden; background:#f1f5e7; margin:0 0 22px; }
+iframe { display:block; width:100%; height:100%; border:0; }
+.topic-list { display:flex; gap:12px; flex-wrap:wrap; }
+footer { margin-top:26px; padding-top:19px; border-top:1px solid #d9ddcf; color:var(--muted); font-size:.875rem; line-height:1.5; }
+@media(max-width:640px) { body { padding:23px 14px; } .page { padding:22px 16px; border-radius:17px; box-shadow:4px 4px 0 var(--ink); } .actions a { flex-grow:1; justify-content:center; } .player { border-radius:6px; } }
+</style><style>.topic-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.topic-list a{gap:12px}.play{font-size:1.1rem}h2{font-size:1.25rem;margin:0 0 16px}.course-label{margin-bottom:10px}.selected{background:var(--pale);outline:2px solid #526b2d}.actions{margin-bottom:20px}</style></head><body><main class="page">
+<nav class="actions" aria-label="Navegació"><a href="index.html">Torna als temes</a><a id="back" hidden></a></nav>
+<p id="trail" class="course-label" hidden></p><h1 id="heading">Tria el curs</h1>
+<div id="choices" class="topic-list"></div>
+<section id="video-section" hidden style="margin-top:24px"><h2 id="video-title"></h2><div class="player"><iframe id="youtube-player" title="Vídeo" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; fullscreen; picture-in-picture" allowfullscreen></iframe></div><a id="youtube-link" target="_blank" rel="noopener noreferrer">Obre a YouTube ↗</a></section>
+<noscript><p>Activa JavaScript per triar el curs, la modalitat i el vídeo.</p></noscript>
+<footer>IES Josep Mestres i Busquets · Pep M. Vila</footer></main>
+<script id="video-courses" type="application/json">{"3r": {"title": "3r ESO", "topics": {"polinomis": {"title": "Polinomis", "videos": [["Monomis", "qxHgjKidHgA"], ["Semblants", "g-vmKCo02zY"], ["Multiplicació", "ZQpG0NBkbCE"], ["Divisió", "OxgtwaTQCZg"], ["Potències", "M4LTTmy_Q7Y"], ["Radicals", "KkOlTQjDEos"], ["Polinomis", "sQgR0nDyWQo"]]}}}, "4t": {"title": "4t ESO", "topics": {"sistemes": {"title": "Sistemes", "videos": [["Eq. 1r Grau", "5ZbE8lC8Www"], ["Eq. 2n Grau", "2UHBgsLbxkE"], ["Substitució", "oYKj9C6Blso"], ["Igualació", "TKSjuIIuTiw"]]}}}, "batx1": {"title": "1r Bx", "topics": {"logaritmes": {"title": "Logaritmes", "videos": [["Definició", "PJS8UEMqv_k"], ["Propietats", "hmA3FuSSOIQ"], ["Desenvolupa 1", "RJfFCo0VJOA"], ["Desenvolupa 2", "ivNyWIRtuOg"], ["Combina", "zU9HO21ZSvY"], ["Equacions Log", "BbD2mJQWWAQ"]]}, "equacions": {"title": "Equacions", "videos": [["Eq. 1r Grau", "5ZbE8lC8Www"], ["Eq. 2n Grau", "2UHBgsLbxkE"], ["Equacions Log", "BbD2mJQWWAQ"]]}}}}</script><script>
+(() => {
+ const courses=JSON.parse(document.getElementById('video-courses').textContent);
+ const params=new URLSearchParams(location.search);
+ let courseKey=params.get('curs'),topicKey=params.get('tema');
+ // Els enllaços de la portada continuen obrint la modalitat corresponent.
+ if(!courseKey && topicKey) courseKey=Object.keys(courses).find(k=>Object.hasOwn(courses[k].topics,topicKey));
+ const course=courses[courseKey],topic=course?.topics[topicKey];
+ const heading=document.getElementById('heading'),trail=document.getElementById('trail'),back=document.getElementById('back'),choices=document.getElementById('choices');
+ function link(title,href){const a=document.createElement('a');a.textContent=title;a.href=href;choices.append(a);return a;}
+ if(!course){Object.entries(courses).forEach(([k,c])=>link(c.title,`videos.html?curs=${k}`));return;}
+ trail.hidden=false;trail.textContent=course.title;back.hidden=false;
+ back.href='videos.html';back.textContent='← Cursos';heading.textContent='Tria la modalitat';
+ if(!topic){Object.entries(course.topics).forEach(([k,t])=>link(t.title,`videos.html?curs=${courseKey}&tema=${k}`));return;}
+ heading.textContent=topic.title;trail.textContent=`${course.title} › ${topic.title}`;
+ back.href=`videos.html?curs=${courseKey}`;back.textContent='← Modalitats';
+ document.title=`${course.title} · ${topic.title} · Vídeos`;
+ function selectVideo(index){
+ const [title,id]=topic.videos[index];
+ for(const [i,a] of [...choices.children].entries()){a.classList.toggle('selected',i===index);if(i===index)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');}
+ document.getElementById('video-title').textContent=title;
+ const player=document.getElementById('youtube-player');player.title=`${course.title} · ${topic.title} · ${title}`;player.src=`https://www.youtube-nocookie.com/embed/${id}?playsinline=1`;
+ document.getElementById('youtube-link').href=`https://youtu.be/${id}`;
+ document.getElementById('video-section').hidden=false;
+ }
+ topic.videos.forEach(([title,id],i)=>{const a=link('',`https://youtu.be/${id}`);const icon=document.createElement('span');icon.className='play';icon.textContent='▶';icon.setAttribute('aria-hidden','true');a.append(icon,document.createTextNode(title));a.addEventListener('click',e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();selectVideo(i);});});
+})();
+</script></body></html>
