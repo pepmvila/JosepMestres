@@ -377,7 +377,7 @@ generate=function(id,number=1,advanced=false){
   const lines=[`${k}(x + ${b}) = ${rhs}`,`${k}x + ${b} = ${rhs}`,`${k}x = ${rhs-b}`,`x = ${num((rhs-b)/k)}`];
   return exercise(mc('Detecta la primera línia incorrecta.',lines.map((line,i)=>`${i+1}. ${line}`).join('<br>'),'Línia 2',['Línia 1','Línia 3','Línia 4'],`A la línia 2 falta multiplicar ${b} per ${k}. La distributiva correcta és ${k}x + ${k*b} = ${rhs}.`,'Revisa la distributiva, línia a línia.'));
  }
- return exercise(mc('Escull la resposta correcta.',q.expr,correct,wrong,q.explanation,q.hint));
+ return exercise(mc(q.prompt+' Escull la resposta correcta.',q.expr,correct,wrong,q.explanation,q.hint));
 };
 const originalValidate=validateField;
 validateField=function(f,s){if(f.kind==='polyT'){if(/x/i.test(s))throw Error('En aquest pas, usa la lletra t.');return originalValidate({...f,kind:'poly'},String(s).replace(/t/g,'x'));}if(f.kind==='root')return near(peval(f.expected,scalar(s)),0);return originalValidate(f,s);};
@@ -393,7 +393,7 @@ function syncStatus(message){$('sync-status').textContent=message;}
 function persistQueue(){try{localStorage.setItem(QUEUE_KEY,JSON.stringify(syncQueue));}catch{}}
 function queueScores(){
  if(!player)return;
- const scores=CATEGORIES.filter(c=>Number.isSafeInteger(records[c.id])&&records[c.id]>=0).map(c=>({category:c.name,score:records[c.id]}));
+ const scores=CATEGORIES.map(c=>({category:c.name,score:Number.isSafeInteger(records[c.id])&&records[c.id]>=0?records[c.id]:0}));
  if(!scores.length){syncStatus('Encara no tens rècords per enviar.');return;}
  const key=JSON.stringify([deviceId,player.fullName.toLocaleLowerCase('ca'),track,'algebra-batx']);
  syncQueue[key]={version:1,deviceId,firstName:player.firstName,lastName:player.lastName,game:'Àlgebra · 1r Batxillerat',track:track==='ccss'?'CCSS':'Científic',scores};
@@ -416,7 +416,7 @@ function finishSync(ok,message){
  else syncStatus(message||'No s’han pogut guardar. Les puntuacions queden pendents.');
 }
 window.addEventListener('message',event=>{
- let trusted=false;try{const url=new URL(event.origin);trusted=url.protocol==='https:'&&(url.hostname==='script.google.com'||url.hostname==='script.googleusercontent.com'||url.hostname.endsWith('.script.googleusercontent.com'));}catch{}
+ let trusted=false;try{const url=new URL(event.origin);trusted=url.protocol==='https:'&&(url.hostname==='script.google.com'||url.hostname==='script.googleusercontent.com'||url.hostname.endsWith('.script.googleusercontent.com')||url.hostname.endsWith('-script.googleusercontent.com'));}catch{}
  const data=event.data;if(!trusted||!activeSync||!data||data.type!=='jocs-sync-result'||data.requestId!==activeSync.requestId)return;
  finishSync(data.ok===true,data.error);
 });

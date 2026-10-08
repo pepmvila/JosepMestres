@@ -45,7 +45,7 @@
   <p class="game-bottom">Cada error és una pista: llegeix l’explicació abans de continuar.</p>
  </section>
  <section id="results" hidden aria-labelledby="result-title"><div class="result"><span id="result-category" class="result-badge"></span><h1 id="result-title" tabindex="-1">Partida acabada!</h1><div id="result-score" class="big-score">0</div><p class="score-caption">punts aconseguits</p><p id="result-complete" class="result-complete" hidden>🏆 Categoria completada · Trofeu aconseguit</p><p id="result-record" class="record-line"></p><div class="result-stats"><div class="result-stat"><strong id="result-right">0</strong>encerts</div><div class="result-stat"><strong id="result-accuracy">0 %</strong>d’encert</div><div class="result-stat"><strong id="result-streak">0</strong>millor ratxa</div></div><p id="result-message" class="result-message"></p><div class="result-buttons"><button id="replay" class="primary">Torna a jugar</button><button id="choose" class="secondary">Canvia de categoria</button></div></div></section>
- <dialog id="trophies" class="trophies-dialog" aria-labelledby="trophies-title"><div class="dialog-head"><h2 id="trophies-title">🏆 Els teus trofeus</h2><button id="close-trophies" class="close-dialog" aria-label="Tanca els trofeus">×</button></div><p class="dialog-description">La puntuació màxima aconseguida en una sola partida de cada categoria. Amb 100 punts guanyes el trofeu. El repte final té el seu propi rècord. El trofeu evoluciona cada 100 punts: 200, 300, 400…</p><p class="trophy-player"><span>Nom i cognoms</span><strong id="trophy-player-name"></strong></p><p id="trophy-average" class="trophy-average" aria-live="polite"></p><div class="trophy-actions"><button id="reset-records" class="reset-button" aria-expanded="false" aria-controls="reset-panel">Reinicia les puntuacions</button><button id="import-records" class="reset-button" aria-expanded="false" aria-controls="import-panel">Importa puntuacions</button></div><section id="import-panel" class="import-panel" hidden aria-label="Importa puntuacions"><form id="import-auth"><label for="import-password">Contrasenya del professor</label><input id="import-password" type="password" autocomplete="off" required><div class="reset-buttons"><button class="primary" type="submit">Continua</button><button class="secondary cancel-import" type="button">Cancel·la</button></div><p id="import-auth-error" class="import-error" role="alert" hidden>Contrasenya incorrecta.</p></form><form id="import-scores" hidden><p>Escriu el rècord de cada categoria. En desar, aquestes puntuacions substituiran les actuals de l’alumne.</p><div id="import-fields" class="import-grid"></div><p id="import-scores-error" class="import-error" role="alert" hidden>Escriu puntuacions enteres iguals o superiors a 0.</p><div class="reset-buttons"><button class="primary" type="submit">Desa les puntuacions</button><button class="secondary cancel-import" type="button">Cancel·la</button></div></form></section><div id="reset-panel" class="reset-panel" hidden><p>Vols esborrar tots els teus rècords i trofeus d’aquest navegador? La partida actual continuarà.</p><div class="reset-buttons"><button id="confirm-reset" class="primary">Sí, esborra’ls</button><button id="cancel-reset" class="secondary">Cancel·la</button></div></div><table class="trophy-table"><thead><tr><th scope="col">Categoria</th><th scope="col">Rècord</th><th scope="col">Trofeu</th></tr></thead><tbody id="trophy-rows"></tbody></table><div class="dialog-footer"><span id="storage-note" class="storage-note"></span></div><p class="dialog-credit">IES Josep Mestres i Busquets - Pep M. Vila</p></dialog>
+ <dialog id="trophies" class="trophies-dialog" aria-labelledby="trophies-title"><div class="dialog-head"><h2 id="trophies-title">🏆 Els teus trofeus</h2><button id="close-trophies" class="close-dialog" aria-label="Tanca els trofeus">×</button></div><p class="dialog-description">La puntuació màxima aconseguida en una sola partida de cada categoria. Amb 100 punts guanyes el trofeu. El repte final té el seu propi rècord. El trofeu evoluciona cada 100 punts: 200, 300, 400…</p><p id="sync-status" class="storage-note" role="status" aria-live="polite"></p><p class="trophy-player"><span>Nom i cognoms</span><strong id="trophy-player-name"></strong></p><p id="trophy-average" class="trophy-average" aria-live="polite"></p><div class="trophy-actions"><button id="reset-records" class="reset-button" aria-expanded="false" aria-controls="reset-panel">Reinicia les puntuacions</button><button id="import-records" class="reset-button" aria-expanded="false" aria-controls="import-panel">Importa puntuacions</button></div><section id="import-panel" class="import-panel" hidden aria-label="Importa puntuacions"><form id="import-auth"><label for="import-password">Contrasenya del professor</label><input id="import-password" type="password" autocomplete="off" required><div class="reset-buttons"><button class="primary" type="submit">Continua</button><button class="secondary cancel-import" type="button">Cancel·la</button></div><p id="import-auth-error" class="import-error" role="alert" hidden>Contrasenya incorrecta.</p></form><form id="import-scores" hidden><p>Escriu el rècord de cada categoria. En desar, aquestes puntuacions substituiran les actuals de l’alumne.</p><div id="import-fields" class="import-grid"></div><p id="import-scores-error" class="import-error" role="alert" hidden>Escriu puntuacions enteres iguals o superiors a 0.</p><div class="reset-buttons"><button class="primary" type="submit">Desa les puntuacions</button><button class="secondary cancel-import" type="button">Cancel·la</button></div></form></section><div id="reset-panel" class="reset-panel" hidden><p>Vols esborrar tots els teus rècords i trofeus d’aquest navegador? La partida actual continuarà.</p><div class="reset-buttons"><button id="confirm-reset" class="primary">Sí, esborra’ls</button><button id="cancel-reset" class="secondary">Cancel·la</button></div></div><table class="trophy-table"><thead><tr><th scope="col">Categoria</th><th scope="col">Rècord</th><th scope="col">Trofeu</th></tr></thead><tbody id="trophy-rows"></tbody></table><div class="dialog-footer"><span id="storage-note" class="storage-note"></span></div><p class="dialog-credit">IES Josep Mestres i Busquets - Pep M. Vila</p></dialog>
  <noscript><p style="background:white;padding:20px;border-radius:12px">Activa JavaScript al navegador per jugar.</p></noscript>
 <footer id="site-footer" class="site-footer">IES Josep Mestres i Busquets - Pep M. Vila</footer>
 </main>
@@ -209,6 +209,44 @@ function generate(id,advanced=false){
 }
 
 const $=id=>document.getElementById(id);
+const SYNC_URL='https://script.google.com/macros/s/AKfycbxSrh_2yMuyVeRdm6kZ5K1BIVs0hXpwJw-zbTAaDd-qct09SUF1xbtl0U8S74s62T1C/exec';
+const DEVICE_KEY='pep-math-device-v1',QUEUE_KEY='pep-math-sync-queue-v1';
+function uniqueId(){if(window.crypto?.randomUUID)return window.crypto.randomUUID();return 'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
+let deviceId;try{deviceId=localStorage.getItem(DEVICE_KEY);if(!deviceId||!/^[a-zA-Z0-9_-]{8,100}$/.test(deviceId)){deviceId=uniqueId();localStorage.setItem(DEVICE_KEY,deviceId);}}catch{deviceId=uniqueId();}
+let syncQueue={};try{const saved=JSON.parse(localStorage.getItem(QUEUE_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))syncQueue=saved;}catch{}
+let activeSync=null;
+function syncStatus(message){$('sync-status').textContent=message;}
+function persistQueue(){try{localStorage.setItem(QUEUE_KEY,JSON.stringify(syncQueue));}catch{}}
+function queueScores(){
+ if(!player)return;
+ const scores=CATEGORIES.map(c=>({category:c.name,score:Number.isSafeInteger(records[c.id])&&records[c.id]>=0?records[c.id]:0}));
+ if(!scores.length){syncStatus('Encara no tens rècords per enviar.');return;}
+ const key=JSON.stringify([deviceId,player.fullName.toLocaleLowerCase('ca'),'3r ESO','polinomis-3r']);
+ syncQueue[key]={version:1,deviceId,firstName:player.firstName,lastName:player.lastName,game:'Polinomis · 3r ESO',track:'3r ESO',scores};
+ persistQueue();flushSync();
+}
+function flushSync(){
+ if(activeSync){syncStatus('Enviant les puntuacions…');return;}
+ const entry=Object.entries(syncQueue)[0];if(!entry)return;
+ if(!navigator.onLine){syncStatus('Sense connexió. Puntuacions pendents d’enviar.');return;}
+ const [key,payload]=entry,requestId=uniqueId(),name='scores-'+requestId;
+ const frame=document.createElement('iframe');frame.name=name;frame.title='Sincronització de puntuacions';frame.hidden=true;document.body.appendChild(frame);
+ const form=document.createElement('form');form.method='POST';form.action=SYNC_URL;form.target=name;form.hidden=true;
+ const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify({...payload,requestId});form.appendChild(input);document.body.appendChild(form);
+ const timer=setTimeout(()=>finishSync(false,'No s’ha rebut confirmació. Les puntuacions queden pendents; torna a obrir Trofeus per reintentar.'),45000);
+ activeSync={key,payload,requestId,frame,timer};syncStatus('Enviant les puntuacions…');form.submit();form.remove();
+}
+function finishSync(ok,message){
+ if(!activeSync)return;const sent=activeSync;activeSync=null;clearTimeout(sent.timer);sent.frame.remove();
+ if(ok){if(JSON.stringify(syncQueue[sent.key])===JSON.stringify(sent.payload))delete syncQueue[sent.key];persistQueue();syncStatus('✓ Puntuacions guardades a Google Sheets.');if(Object.keys(syncQueue).length)flushSync();}
+ else syncStatus(message||'No s’han pogut guardar. Les puntuacions queden pendents.');
+}
+window.addEventListener('message',event=>{
+ let trusted=false;try{const url=new URL(event.origin);trusted=url.protocol==='https:'&&(url.hostname==='script.google.com'||url.hostname==='script.googleusercontent.com'||url.hostname.endsWith('.script.googleusercontent.com')||url.hostname.endsWith('-script.googleusercontent.com'));}catch{}
+ const data=event.data;if(!trusted||!activeSync||!data||data.type!=='jocs-sync-result'||data.requestId!==activeSync.requestId)return;
+ finishSync(data.ok===true,data.error);
+});
+window.addEventListener('online',flushSync);
 const RECORDS_KEY='polinomis-eso-records-v1';
 const PROFILE_KEY='polinomis-eso-last-player-v1';
 let player=null;
@@ -317,7 +355,7 @@ function end(){
  $('replay').addEventListener('click',()=>start(state.id));
  $('choose').addEventListener('click',()=>{show('home');document.querySelector('[data-category]').focus({preventScroll:true});});
  $('categories').addEventListener('click',e=>{const button=e.target.closest('[data-category]');if(button)start(button.dataset.category);});
- $('open-trophies').addEventListener('click',()=>{if(!player)return;closeImport();paintTrophies();$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('trophies').showModal();});
+ $('open-trophies').addEventListener('click',()=>{if(!player)return;closeImport();paintTrophies();$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('trophies').showModal();queueScores();});
  $('close-trophies').addEventListener('click',()=>$('trophies').close());
  $('trophies').addEventListener('close',closeImport);
  $('import-records').addEventListener('click',()=>{closeImport();$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('import-panel').hidden=false;$('import-records').setAttribute('aria-expanded','true');$('import-password').focus();});
