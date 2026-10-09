@@ -162,7 +162,7 @@ function story(id,advanced=false,comparison=false){
  const problem=(id==='counts'?title+' ':'')+pistas.join(' ')+' '+endings[id];
  return {labels,title:id==='counts'?'Animals, vehicles i altres grups':title,pistas,rows,explain,visual,problem};
 }
-function storyHTML(s,phase=null){return `<div class="story-title">${s.title}</div><div class="story-problem">${s.problem}</div><div class="hint-controls" aria-label="Pistes opcionals">${s.pistas.map((p,i)=>`<details class="hint-detail"><summary>Pista ${i+1}</summary><div class="story-pista${phase===i+1?' active':''}">${p}${Array.isArray(s.visual)?`<div class="visual-buy" aria-label="Compra ${i+1}">${s.visual[i]}</div>`:s.visual&&i===1?`<div class="visual-buy">${s.visual}</div>`:''}</div></details>`).join('')}</div>`;}
+function storyHTML(s,phase=null,revealHints=false){return `<div class="story-title">${s.title}</div><div class="story-problem">${s.problem}</div><div class="hint-controls" aria-label="Pistes opcionals">${s.pistas.map((p,i)=>`<details class="hint-detail"${revealHints?' open':''}><summary>Pista ${i+1}</summary><div class="story-pista${phase===i+1?' active':''}">${p}${Array.isArray(s.visual)?`<div class="visual-buy" aria-label="Compra ${i+1}">${s.visual[i]}</div>`:s.visual&&i===1?`<div class="visual-buy">${s.visual}</div>`:''}</div></details>`).join('')}</div>`;}
 
 function definitions(s){return `<div class="story-def"><strong>x</strong> = ${s.labels[0]}<br><strong>y</strong> = ${s.labels[1]}</div>`;}
 function wrongRows(r){return [row(r.a,r.b,add(r.c,1)),row(r.a,neg(r.b),r.c),row(r.b,r.a,r.c),row(add(r.a,1),r.b,r.c),row(r.a,r.b,neg(r.c))];}
@@ -185,7 +185,7 @@ function resolutionPause(f){
  return {prompt:'Ara és quan resoldries el sistema',expr:`<div class="resolution-panel"><p>Ja has plantejat les dues equacions.</p><div class="resolution-system math">${systemHTML(f.story.rows)}</div>${definitions(f.story)}<p>Pots resoldre’l en paper amb el mètode que prefereixis. Quan acabis, podràs consultar les solucions. També pots continuar directament.</p></div>`,options,correct:options[0],choice:true,transition:true,points:0,wordExpression:true,wordOptions:true,explanation:'',stepLabel:'Resolució opcional · Sense punts'};
 }
 function correctionStep(f){const p=solve(f.story.rows),options=[{html:'Continua: la resposta té sentit?',key:'continue',correct:true}];
- return {prompt:'Compara les solucions amb les teves',expr:`<div class="resolution-panel"><div class="resolution-system math">${systemHTML(f.story.rows)}</div>${definitions(f.story)}<div class="solution-reveal math">x = ${fmt(p.x)} &nbsp; · &nbsp; y = ${fmt(p.y)}</div><p>Comprova si has trobat aquests valors. Si són diferents, revisa els signes i les operacions. Aquesta correcció no suma ni resta punts.</p></div>`,options,correct:options[0],choice:true,transition:true,points:0,wordExpression:true,wordOptions:true,explanation:'',stepLabel:'Correcció opcional · Sense punts'};
+ return {prompt:'Compara les solucions amb les teves',expr:`<div class="resolution-panel"><div class="resolution-system math">${systemHTML(f.story.rows)}</div>${definitions(f.story)}<div class="solution-reveal math">(x, y) = (${fmt(p.x)}, ${fmt(p.y)})</div><p>Comprova si has trobat aquests valors. Si són diferents, revisa els signes i les operacions. Aquesta correcció no suma ni resta punts.</p></div>`,options,correct:options[0],choice:true,transition:true,points:0,wordExpression:true,wordOptions:true,explanation:'',stepLabel:'Correcció opcional · Sense punts'};
 }
 
 function senseQuestion(f){
@@ -201,7 +201,7 @@ function senseQuestion(f){
  const correct=T(valid?'Sí, té sentit':'No, no té sentit',valid?'yes':'no');
  const options=[T('Sí, té sentit','yes'),T('No, no té sentit','no')].map(o=>({...o,correct:o.key===correct.key}));
  const proposal=`<div class="story-def"><strong>Una possible resposta:</strong><br><span class="math">x = ${fmt(x)} &nbsp; · &nbsp; y = ${fmt(y)}</span></div><p class="story-guide">Podrien ser aquestes les quantitats del problema? Mira què representa cada lletra, si els nombres són possibles i si concorden amb les dues pistes. No cal resoldre el sistema.</p>`;
- return {prompt:'Últim pas · Aquesta possible solució té sentit?',expr:storyHTML(s)+definitions(s)+proposal,correct,options,explanation:reason+(valid?` Comprovació: <span class="math">${s.rows.map(r=>`${fmt(rowValue(r,{x,y}))} = ${fmt(r.c)}`).join(' · ')}</span>.`:''),task:{type:'sense',valid,x,y},points:5,wordExpression:true,wordOptions:true,stepLabel:`Pas ${f.advanced?2:4}/${f.advanced?2:4} · +5 punts`};
+ return {prompt:'Últim pas · Aquesta possible solució té sentit?',expr:storyHTML(s,null,true)+definitions(s)+proposal,correct,options,explanation:reason+(valid?` Comprovació: <span class="math">${s.rows.map(r=>`${fmt(rowValue(r,{x,y}))} = ${fmt(r.c)}`).join(' · ')}</span>.`:''),task:{type:'sense',valid,x,y},points:5,wordExpression:true,wordOptions:true,stepLabel:`Pas ${f.advanced?2:4}/${f.advanced?2:4} · +5 punts`};
 }
 
 const $=id=>document.getElementById(id);
