@@ -27,8 +27,8 @@
 </style></head>
 <body>
 <main class="shell">
- <header class="top"><div class="brand"><div class="mark" aria-hidden="true"><span>x<sup>2</sup></span></div><div><strong>Potència!</strong><small>Matemàtiques · 1r d’ESO</small><span id="player-name" class="player-name" hidden></span></div></div><div class="header-actions"><span class="header-note">Una pregunta. Quatre opcions.<br>Fins on pots arribar?</span><button id="open-trophies" class="trophy-button" disabled aria-haspopup="dialog"><span aria-hidden="true">🏆</span> Trofeus <span id="trophy-count" class="trophy-count">0/10</span></button></div></header>
- <section id="identity" aria-labelledby="identity-title"><div class="identity-card"><h1 id="identity-title">Abans de començar…</h1><p>Escriu el teu nom i els cognoms. Apareixeran als trofeus per identificar les teves puntuacions.</p><form id="identity-form" class="identity-form" novalidate><div class="identity-field"><label for="given-name">Nom</label><input id="given-name" name="given-name" type="text" autocomplete="given-name" maxlength="80" required></div><div class="identity-field"><label for="family-name">Cognoms</label><input id="family-name" name="family-name" type="text" autocomplete="family-name" maxlength="120" required></div><p id="identity-error" class="identity-error" role="alert" hidden></p><button type="submit" class="primary">Entra al joc</button></form></div></section>
+ <p id="cloud-status" role="status" style="color:white;padding:8px"></p><header class="top"><div class="brand"><div class="mark" aria-hidden="true"><span>x<sup>2</sup></span></div><div><strong>Potència!</strong><small>Matemàtiques · 1r d’ESO</small><span id="player-name" class="player-name" hidden></span></div></div><div class="header-actions"><span class="header-note">Una pregunta. Quatre opcions.<br>Fins on pots arribar?</span><button id="open-trophies" class="trophy-button" disabled aria-haspopup="dialog"><span aria-hidden="true">🏆</span> Trofeus <span id="trophy-count" class="trophy-count">0/10</span></button><button id="change-player" class="quiet" type="button">Canvia d’alumne</button></div></header>
+ <section id="identity"><div class="identity-card"><h1>Abans de començar…</h1><p>Confirma el teu correu del centre per recuperar els rècords.</p><form id="identity-form" class="identity-form"><div class="identity-field"><label for="email">Correu del centre</label><input id="email" type="email" autocomplete="email" required maxlength="254"></div><p id="identity-error" role="alert" hidden></p><button class="primary" id="login">Continua amb aquest correu</button><button type="button" class="secondary" id="guest">Entra com a convidat</button></form></div></section>
  <section id="home" hidden aria-labelledby="home-title">
   <div class="intro"><div><h1 id="home-title">Tria el teu repte.</h1><p>Practica una categoria o posa’t a prova barrejant-les totes. Si estàs començant, segueix l’ordre dels números.</p><div class="rules"><span class="pill"><strong>3</strong> vides</span><span class="pill"><strong>+8</strong> a Calcula</span><span class="pill"><strong>+10</strong> a la resta</span><span class="pill"><strong>+5</strong> de bonus, excepte a Calcula</span><span class="pill">Sense cronòmetre</span></div></div><div class="intro-figure math" aria-hidden="true">2<sup>5</sup></div></div>
   <div id="categories" class="grid"></div>
@@ -43,7 +43,7 @@
   <p class="game-bottom">Cada error és una pista: llegeix l’explicació abans de continuar.</p>
  </section>
  <section id="results" hidden aria-labelledby="result-title"><div class="result"><span id="result-category" class="result-badge"></span><h1 id="result-title" tabindex="-1">Partida acabada!</h1><div id="result-score" class="big-score">0</div><p class="score-caption">punts aconseguits</p><p id="result-complete" class="result-complete" hidden>🏆 Categoria completada · Trofeu aconseguit</p><p id="result-record" class="record-line"></p><div class="result-stats"><div class="result-stat"><strong id="result-right">0</strong>encerts</div><div class="result-stat"><strong id="result-accuracy">0 %</strong>d’encert</div><div class="result-stat"><strong id="result-streak">0</strong>millor ratxa</div></div><p id="result-message" class="result-message"></p><div class="result-buttons"><button id="replay" class="primary">Torna a jugar</button><button id="choose" class="secondary">Canvia de categoria</button></div></div></section>
- <dialog id="trophies" class="trophies-dialog" aria-labelledby="trophies-title"><div class="dialog-head"><h2 id="trophies-title">🏆 Els teus trofeus</h2><button id="close-trophies" class="close-dialog" aria-label="Tanca els trofeus">×</button></div><p class="dialog-description">La puntuació màxima aconseguida en una sola partida de cada categoria. Amb 100 punts guanyes el trofeu. El repte final té el seu propi rècord. El trofeu evoluciona cada 100 punts: 200, 300, 400…</p><p id="sync-status" class="storage-note" role="status" aria-live="polite"></p><p class="trophy-player"><span>Nom i cognoms</span><strong id="trophy-player-name"></strong></p><p id="trophy-average" class="trophy-average" aria-live="polite"></p><div class="trophy-actions"><button id="reset-records" class="reset-button" aria-expanded="false" aria-controls="reset-panel">Reinicia les puntuacions</button><button id="import-records" class="reset-button" aria-expanded="false" aria-controls="import-panel">Importa puntuacions</button></div><section id="import-panel" class="import-panel" hidden aria-label="Importa puntuacions"><form id="import-auth"><label for="import-password">Contrasenya del professor</label><input id="import-password" type="password" autocomplete="off" required><div class="reset-buttons"><button class="primary" type="submit">Continua</button><button class="secondary cancel-import" type="button">Cancel·la</button></div><p id="import-auth-error" class="import-error" role="alert" hidden>Contrasenya incorrecta.</p></form><form id="import-scores" hidden><p>Escriu el rècord de cada categoria. En desar, aquestes puntuacions substituiran les actuals de l’alumne.</p><div id="import-fields" class="import-grid"></div><p id="import-scores-error" class="import-error" role="alert" hidden>Escriu puntuacions enteres iguals o superiors a 0.</p><div class="reset-buttons"><button class="primary" type="submit">Desa les puntuacions</button><button class="secondary cancel-import" type="button">Cancel·la</button></div></form></section><div id="reset-panel" class="reset-panel" hidden><p>Vols esborrar tots els teus rècords i trofeus d’aquest navegador? La partida actual continuarà.</p><div class="reset-buttons"><button id="confirm-reset" class="primary">Sí, esborra’ls</button><button id="cancel-reset" class="secondary">Cancel·la</button></div></div><table class="trophy-table"><thead><tr><th scope="col">Categoria</th><th scope="col">Rècord</th><th scope="col">Trofeu</th></tr></thead><tbody id="trophy-rows"></tbody></table><div class="dialog-footer"><span id="storage-note" class="storage-note"></span></div><p class="dialog-credit">IES Josep Mestres i Busquets - Pep M. Vila</p></dialog>
+ <dialog id="trophies" class="trophies-dialog" aria-labelledby="trophies-title"><div class="dialog-head"><h2 id="trophies-title">🏆 Els teus trofeus</h2><button id="close-trophies" class="close-dialog" aria-label="Tanca els trofeus">×</button></div><p class="dialog-description">La puntuació màxima aconseguida en una sola partida de cada categoria. Amb 100 punts guanyes el trofeu. El repte final té el seu propi rècord. El trofeu evoluciona cada 100 punts: 200, 300, 400…</p><p id="sync-status" class="storage-note" role="status" aria-live="polite"></p><p class="trophy-player"><span>Nom i cognoms</span><strong id="trophy-player-name"></strong></p><p id="trophy-average" class="trophy-average" aria-live="polite"></p><table class="trophy-table"><thead><tr><th scope="col">Categoria</th><th scope="col">Rècord</th><th scope="col">Trofeu</th></tr></thead><tbody id="trophy-rows"></tbody></table><div class="dialog-footer"><span id="storage-note" class="storage-note"></span></div><p class="dialog-credit">IES Josep Mestres i Busquets - Pep M. Vila</p></dialog>
  <noscript><p style="background:white;padding:20px;border-radius:12px">Activa JavaScript al navegador per jugar.</p></noscript>
 <footer id="site-footer" class="site-footer">IES Josep Mestres i Busquets - Pep M. Vila</footer>
 </main>
@@ -265,67 +265,36 @@ function generateAdvanced(id){
  }
 }
 const $=id=>document.getElementById(id);
-const SYNC_URL='https://script.google.com/macros/s/AKfycbxSrh_2yMuyVeRdm6kZ5K1BIVs0hXpwJw-zbTAaDd-qct09SUF1xbtl0U8S74s62T1C/exec';
-const DEVICE_KEY='pep-math-device-v1',QUEUE_KEY='pep-math-sync-queue-v1';
-function uniqueId(){if(window.crypto?.randomUUID)return window.crypto.randomUUID();return 'id-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2);}
-let deviceId;try{deviceId=localStorage.getItem(DEVICE_KEY);if(!deviceId||!/^[a-zA-Z0-9_-]{8,100}$/.test(deviceId)){deviceId=uniqueId();localStorage.setItem(DEVICE_KEY,deviceId);}}catch{deviceId=uniqueId();}
-let syncQueue={};try{const saved=JSON.parse(localStorage.getItem(QUEUE_KEY)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))syncQueue=saved;}catch{}
-let activeSync=null;
-function syncStatus(message){$('sync-status').textContent=message;}
-function persistQueue(){try{localStorage.setItem(QUEUE_KEY,JSON.stringify(syncQueue));}catch{}}
-function queueScores(){
- if(!player)return;
- const scores=CATEGORIES.map(c=>({category:c.name,score:Number.isSafeInteger(records[c.id])&&records[c.id]>=0?records[c.id]:0}));
- if(!scores.length){syncStatus('Encara no tens rècords per enviar.');return;}
- const key=JSON.stringify([deviceId,player.fullName.toLocaleLowerCase('ca'),'potencies','potencies-eso']);
- syncQueue[key]={version:1,deviceId,firstName:player.firstName,lastName:player.lastName,game:'Potències · 1r ESO',track:'Potències',scores};
- persistQueue();flushSync();
-}
-function flushSync(){
- if(activeSync){syncStatus('Enviant les puntuacions…');return;}
- const entry=Object.entries(syncQueue)[0];if(!entry)return;
- if(!navigator.onLine){syncStatus('Sense connexió. Puntuacions pendents d’enviar.');return;}
- const [key,payload]=entry,requestId=uniqueId(),name='scores-'+requestId;
- const frame=document.createElement('iframe');frame.name=name;frame.title='Sincronització de puntuacions';frame.hidden=true;document.body.appendChild(frame);
- const form=document.createElement('form');form.method='POST';form.action=SYNC_URL;form.target=name;form.hidden=true;
- const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify({...payload,requestId});form.appendChild(input);document.body.appendChild(form);
- const timer=setTimeout(()=>finishSync(false,'No s’ha rebut confirmació. Les puntuacions queden pendents; torna a obrir Trofeus per reintentar.'),45000);
- activeSync={key,payload,requestId,frame,timer};syncStatus('Enviant les puntuacions…');form.submit();form.remove();
-}
-function finishSync(ok,message){
- if(!activeSync)return;const sent=activeSync;activeSync=null;clearTimeout(sent.timer);sent.frame.remove();
- if(ok){if(JSON.stringify(syncQueue[sent.key])===JSON.stringify(sent.payload))delete syncQueue[sent.key];persistQueue();syncStatus('✓ Puntuacions guardades a Google Sheets.');if(Object.keys(syncQueue).length)flushSync();}
- else syncStatus(message||'No s’han pogut guardar. Les puntuacions queden pendents.');
-}
-window.addEventListener('message',event=>{
- let trusted=false;try{const url=new URL(event.origin);trusted=url.protocol==='https:'&&(url.hostname==='script.google.com'||url.hostname==='script.googleusercontent.com'||url.hostname.endsWith('.script.googleusercontent.com')||url.hostname.endsWith('-script.googleusercontent.com'));}catch{}
- const data=event.data;if(!trusted||!activeSync||!data||data.type!=='jocs-sync-result'||data.requestId!==activeSync.requestId)return;
- finishSync(data.ok===true,data.error);
-});
-window.addEventListener('online',flushSync);
-const RECORDS_KEY='potencia-eso-records-v1';
-const PROFILE_KEY='potencia-eso-last-player-v1';
-let player=null;
-let currentRecordsKey=null;
-const cleanName=value=>value.trim().replace(/\s+/g,' ').normalize('NFC');
-function rememberedPlayer(){try{const saved=JSON.parse(localStorage.getItem(PROFILE_KEY)||'null');if(saved&&typeof saved.firstName==='string'&&typeof saved.lastName==='string'&&saved.firstName.length<=80&&saved.lastName.length<=120)return saved;}catch{}return null;}
-function enterPlayer(){
- const firstName=cleanName($('given-name').value),lastName=cleanName($('family-name').value);
- if(!firstName||!lastName||firstName.length>80||lastName.length>120){$('identity-error').textContent='Escriu el nom i els cognoms per poder entrar al joc.';$('identity-error').hidden=false;$('given-name').setAttribute('aria-invalid',String(!firstName||firstName.length>80));$('family-name').setAttribute('aria-invalid',String(!lastName||lastName.length>120));(!firstName||firstName.length>80?$('given-name'):$('family-name')).focus();return;}
- player={firstName,lastName,fullName:firstName+' '+lastName};
- currentRecordsKey=RECORDS_KEY+':player:'+encodeURIComponent(player.fullName.toLocaleLowerCase('ca'));
- try{localStorage.setItem(PROFILE_KEY,JSON.stringify({firstName,lastName}));}catch{}
- persistentRecords=true;records=loadRecords();$('identity-error').hidden=true;
- $('player-name').textContent=player.fullName;$('player-name').hidden=false;$('trophy-player-name').textContent=player.fullName;$('open-trophies').disabled=false;
- paintTrophyCount();show('home');$('home-title').setAttribute('tabindex','-1');$('home-title').focus({preventScroll:true});
-}
-let persistentRecords=true;
-function loadRecords(){
- const clean={};if(!currentRecordsKey)return clean;try{const raw=JSON.parse(localStorage.getItem(currentRecordsKey)||'{}');if(raw.version===1&&raw.scores&&typeof raw.scores==='object'){for(const cat of CATEGORIES){const score=raw.scores[cat.id];if(Number.isSafeInteger(score)&&score>=0)clean[cat.id]=score;}const previousSpecial=raw.scores.special;if(Number.isSafeInteger(previousSpecial)&&previousSpecial>=0)clean.calculate=Math.max(clean.calculate||0,previousSpecial);}}catch{persistentRecords=false;}return clean;
-}
-let records=loadRecords();
-function saveRecords(){if(!currentRecordsKey)return;try{localStorage.setItem(currentRecordsKey,JSON.stringify({version:1,player:{firstName:player.firstName,lastName:player.lastName},scores:records}));persistentRecords=true;}catch{persistentRecords=false;}}
-function recordScore(){if(!state)return;const old=records[state.id];if(old===undefined||state.score>old){records[state.id]=state.score;saveRecords();}paintTrophyCount();}
+// Enganxa aquí l’URL /exec de la NOVA implementació, mai la del full antic.
+const SYNC_URL='https://script.google.com/macros/s/AKfycbzIndtpmH62DE9PRB0UnNBFG3AI2TVaQX_lUdb1Iy_epanqlfuXiFW3Btuyd4Z9rt9G/exec';
+let player=null,records={},persistentRecords=true,currentRecordsKey=null,busy=false,revision='',pending=null;
+function status(s){$('cloud-status').textContent=s;const e=$('sync-status');if(e)e.textContent=s;}
+function uniqueId(){return crypto.randomUUID();}
+function rpc(payload){return new Promise((resolve,reject)=>{
+ if(!SYNC_URL.startsWith('https://script.google.com/macros/s/'))return reject(Error('Falta configurar l’URL del nou Apps Script. Pots provar el mode convidat.'));
+ const requestId=uniqueId(),frame=document.createElement('iframe'),form=document.createElement('form');
+ frame.name='sync-'+requestId;frame.hidden=true;document.body.append(frame);
+ const timer=setTimeout(()=>done(Error('Sense confirmació. Els canvis continuen pendents.')),30000);
+ function done(err,data){clearTimeout(timer);window.removeEventListener('message',receive);frame.remove();err?reject(err):resolve(data);}
+ function receive(e){let ok=false;try{const h=new URL(e.origin).hostname;ok=h==='script.google.com'||h==='script.googleusercontent.com'||h.endsWith('.googleusercontent.com');}catch{}if(!ok||e.data?.requestId!==requestId)return;done(null,e.data);}
+ window.addEventListener('message',receive);form.method='POST';form.action=SYNC_URL;form.target=frame.name;form.hidden=true;
+ const input=document.createElement('input');input.name='payload';input.value=JSON.stringify({...payload,requestId});form.append(input);document.body.append(form);form.submit();form.remove();
+});}
+function activate(){$('identity-error').hidden=true;$('player-name').textContent=player.fullName;$('player-name').hidden=false;$('open-trophies').disabled=false;$('trophy-player-name').textContent=player.fullName;paintTrophyCount();show('home');}
+function persist(){if(!player||player.guest)return;try{localStorage.setItem('potencies-pending:'+player.email,JSON.stringify(pending));}catch{status('No es pot desar la còpia local. Mantén la pàgina oberta fins que indiqui Desat.');}}
+async function enterPlayer(){if(busy)return;const email=$('email').value.trim().toLowerCase();if(!$('email').checkValidity())return;busy=true;$('login').disabled=true;$('guest').disabled=true;
+ try{const r=await rpc({action:'load',email});if(!r.ok)throw Error(r.error);player={email,fullName:r.name};records=r.scores;revision=r.revision;try{localStorage.setItem('potencies-email-v2',email);pending=JSON.parse(localStorage.getItem('potencies-pending:'+email)||'null');}catch{pending=null;}activate();status('Puntuacions recuperades.');}
+ catch(e){$('identity-error').textContent=e.message;$('identity-error').hidden=false;}
+ finally{busy=false;$('login').disabled=false;$('guest').disabled=false;}if(player&&!player.guest)flushSync();}
+function saveRecords(){if(player?.guest)return;pending={id:uniqueId(),action:'save',email:player.email,revision:pending?.revision||revision,scores:{...records}};persist();flushSync();}
+function queueScores(){if(player?.guest)return;flushSync();}
+async function flushSync(){if(busy||!player||player.guest||!pending)return;busy=true;const sent=pending;status('Desant…');try{const r=await rpc(sent);if(!r.ok)throw Error(r.error);
+ revision=r.revision;
+ if(r.conflict){records=r.scores;pending=null;state=null;show('home');status('El full ha canviat. Hem recuperat els punts actuals; torna a començar la partida.');}
+ else{if(pending.id===sent.id){pending=null;records=r.scores;}else{pending.revision=revision;}status('Desat.');}persist();paintTrophyCount();paintCategories();
+ }catch(e){status(e.message);}finally{busy=false;}if(pending&&pending.id!==sent.id)setTimeout(flushSync,500);}
+function recordScore(){if(!state)return;const old=records[state.id]||0;if(state.score>old){records[state.id]=state.score;saveRecords();}paintTrophyCount();}
+window.addEventListener('online',flushSync);setInterval(flushSync,15000);
 function paintTrophyCount(){$('trophy-count').textContent=`${CATEGORIES.filter(c=>(records[c.id]||0)>=100).length}/10`;}
 function trophyHTML(score){
  const level=Math.floor(score/100);
@@ -333,15 +302,13 @@ function trophyHTML(score){
  const symbols=['🏆','🏆⭐','🏆💎','🏆👑','🏆🌈'];
  return `<span class="trophy-icon trophy-level-${Math.min(level,5)}" role="img" aria-label="Trofeu de nivell ${level}">${symbols[Math.min(level,5)-1]}</span> <span class="completed-label">Nivell ${level}</span><small class="trophy-next">Següent: ${num((level+1)*100)} punts</small>`;
 }
-function closeImport(){
- $('import-panel').hidden=true;$('import-records').setAttribute('aria-expanded','false');$('import-password').value='';$('import-scores').hidden=true;$('import-auth').hidden=false;$('import-auth-error').hidden=true;$('import-scores-error').hidden=true;$('import-fields').innerHTML='';
-}
+function closeImport(){}
 function paintTrophies(){
  $('trophy-player-name').textContent=player?player.fullName:'';
- const average=CATEGORIES.reduce((sum,c)=>sum+(records[c.id]||0),0)/CATEGORIES.length;
- $('trophy-average').textContent=`La puntuació mitjana és ${average.toLocaleString('ca-ES',{maximumFractionDigits:1})} punts`;
+ const average=CATEGORIES.reduce((sum,c)=>sum+Math.min(100,records[c.id]||0),0)/CATEGORIES.length;
+ $('trophy-average').textContent=`La mitjana (màxim 100 per categoria) és ${average.toLocaleString('ca-ES',{maximumFractionDigits:1})} punts`;
  $('trophy-rows').innerHTML=CATEGORIES.map((c,i)=>`<tr><td>${c.id==='mixed'?'★':i+1}. ${c.name}</td><td>${records[c.id]===undefined?'—':num(records[c.id])+' punts'}</td><td>${trophyHTML(records[c.id]||0)}</td></tr>`).join('');
- $('storage-note').textContent=persistentRecords?'Rècords guardats per al teu nom en aquest navegador.':'Rècords disponibles mentre mantinguis aquest joc obert.';
+ $('storage-note').textContent=persistentRecords?'Rècords vinculats al correu. Mitjana limitada a 100 punts per categoria.':'Rècords disponibles mentre mantinguis aquest joc obert.';
  paintTrophyCount();
 }
 let state=null;
@@ -351,7 +318,7 @@ function paintCategories(){
  $('categories').innerHTML=CATEGORIES.map((cat,i)=>cat.id==='mixed'?`<button class="category mix" data-category="${cat.id}"><span class="step" aria-hidden="true">★</span><span><h2>${cat.name}</h2><p>${cat.description}</p></span><span class="sample math" aria-hidden="true">${cat.sample}</span>${badge(cat)}</button>`:`<button class="category" data-category="${cat.id}"><span class="card-top"><span class="step">${i+1}</span><span class="group">${cat.group}</span></span><h2>${cat.name}</h2><p>${cat.description}</p><span class="sample math" aria-hidden="true">${cat.sample}</span>${badge(cat)}</button>`).join('');
 }
 function start(id){
- if(!player){show('identity');$('given-name').focus();return;}
+ if(!player){show('identity');$('email').focus();return;}
  state={id,score:0,lives:3,streak:0,best:0,right:0,answered:0,number:0,locked:false,ended:false,completed:false,advanced:false,pendingAdvanced:false,recent:[],lastKind:null,q:null};
  const cat=CATEGORIES.find(c=>c.id===id);$('game-title').textContent=cat.name;$('category-label').textContent=id==='mixed'?'Totes les categories':`Categoria ${CATEGORIES.indexOf(cat)+1} de 9`;
  $('completion').hidden=true;
@@ -411,16 +378,8 @@ function end(){
  $('replay').addEventListener('click',()=>start(state.id));
  $('choose').addEventListener('click',()=>{show('home');document.querySelector('[data-category]').focus({preventScroll:true});});
  $('categories').addEventListener('click',e=>{const button=e.target.closest('[data-category]');if(button)start(button.dataset.category);});
- $('open-trophies').addEventListener('click',()=>{if(!player)return;closeImport();paintTrophies();$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('trophies').showModal();queueScores();});
+ $('open-trophies').addEventListener('click',()=>{if(!player)return;paintTrophies();$('trophies').showModal();queueScores();});
  $('close-trophies').addEventListener('click',()=>$('trophies').close());
- $('trophies').addEventListener('close',closeImport);
- $('import-records').addEventListener('click',()=>{closeImport();$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('import-panel').hidden=false;$('import-records').setAttribute('aria-expanded','true');$('import-password').focus();});
- document.querySelectorAll('.cancel-import').forEach(button=>button.addEventListener('click',()=>{closeImport();$('import-records').focus();}));
- $('import-auth').addEventListener('submit',e=>{e.preventDefault();if($('import-password').value!=='Xtecpracticadigital'){$('import-auth-error').hidden=false;$('import-password').focus();return;}$('import-password').value='';$('import-auth').hidden=true;$('import-scores').hidden=false;$('import-fields').innerHTML=CATEGORIES.map(c=>`<label>${c.name}<input type="number" name="${c.id}" min="0" max="9007199254740991" step="1" value="${records[c.id]||0}" required></label>`).join('');$('import-fields').querySelector('input').focus();});
- $('import-scores').addEventListener('submit',e=>{e.preventDefault();if($('import-scores').hidden)return;const next={};for(const c of CATEGORIES){const input=$('import-scores').elements.namedItem(c.id),value=Number(input.value);if(input.value.trim()===''||!Number.isSafeInteger(value)||value<0){$('import-scores-error').hidden=false;input.focus();return;}next[c.id]=value;}records=next;saveRecords();paintTrophies();paintCategories();if(state){paintHud();$('result-record').textContent=`Rècord de la categoria: ${num(records[state.id]||0)} punts`;}closeImport();$('import-records').focus();});
- $('reset-records').addEventListener('click',()=>{closeImport();$('reset-panel').hidden=false;$('reset-records').setAttribute('aria-expanded','true');$('confirm-reset').focus();});
- $('cancel-reset').addEventListener('click',()=>{$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('reset-records').focus();});
- $('confirm-reset').addEventListener('click',()=>{records={};saveRecords();paintTrophies();paintCategories();if(state){paintHud();$('result-record').textContent='Rècord de la categoria: 0 punts';}$('reset-panel').hidden=true;$('reset-records').setAttribute('aria-expanded','false');$('reset-records').focus();});
  document.addEventListener('keydown',e=>{
   if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||$('game').hidden||$('trophies').open)return;
   if(/^[1-4]$/.test(e.key)){e.preventDefault();answer(Number(e.key)-1);}
@@ -428,10 +387,10 @@ function end(){
   else if(e.key==='Enter'&&state.locked&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();nextQuestion();}
  });
 $('identity-form').addEventListener('submit',e=>{e.preventDefault();enterPlayer();});
-const remembered=rememberedPlayer();if(remembered){$('given-name').value=remembered.firstName;$('family-name').value=remembered.lastName;}
-paintCategories();
-paintTrophyCount();
-show('identity');$('given-name').focus({preventScroll:true});
+try{$('email').value=localStorage.getItem('potencies-email-v2')||'';}catch{}
+$('guest').onclick=()=>{player={guest:true,fullName:['Emmy Noether','Carl Friedrich Gauss','Ada Lovelace','Sofia Kovalevskaia','Leonhard Euler'][Math.floor(Math.random()*5)]};records={};activate();status('Convidat: el progrés dura mentre aquesta pàgina estigui oberta.');};
+$('change-player').onclick=async()=>{if(busy){status('Espera que acabi la sincronització.');return;}player=null;state=null;records={};$('open-trophies').disabled=true;$('player-name').hidden=true;show('identity');};
+paintCategories();paintTrophyCount();show('identity');
 </script>
 </body>
 </html>
