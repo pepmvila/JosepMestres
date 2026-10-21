@@ -314,7 +314,7 @@ function rpc(payload){return new Promise((resolve,reject)=>{
  frame.name='sync-'+requestId;frame.hidden=true;document.body.append(frame);
  const timer=setTimeout(()=>done(Error('Sense confirmació. Els canvis continuen pendents.')),30000);
  function done(err,data){clearTimeout(timer);window.removeEventListener('message',receive);frame.remove();err?reject(err):resolve(data);}
- function receive(e){let ok=false;try{const h=new URL(e.origin).hostname;ok=h==='script.google.com'||h==='script.googleusercontent.com'||h.endsWith('.googleusercontent.com');}catch{}if(!ok||e.source!==frame.contentWindow||e.data?.requestId!==requestId)return;done(null,e.data);}
+ function receive(e){let ok=false;try{const h=new URL(e.origin).hostname;ok=h==='script.google.com'||h==='script.googleusercontent.com'||h.endsWith('.googleusercontent.com');}catch{}if(!ok||e.data?.requestId!==requestId)return;if(e.data.ok&&e.data.game!==GAME_ID){done(Error('La resposta correspon a un altre joc. Revisa la implementació d’Apps Script.'));return;}done(null,e.data);}
  window.addEventListener('message',receive);form.method='POST';form.action=SYNC_URL;form.target=frame.name;form.hidden=true;
  const input=document.createElement('input');input.name='payload';input.value=JSON.stringify({...payload,game:GAME_ID,requestId});form.append(input);document.body.append(form);form.submit();form.remove();
 });}
