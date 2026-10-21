@@ -297,7 +297,7 @@ function clickSign(id){if(!state||state.action!=='sign'||state.phase!=='select'|
 function checkSigns(){if(!state||state.action!=='sign'||state.phase!=='select')return;const required=[...state.eq.left,...state.eq.right].map(t=>t.id),missing=required.filter(id=>!state.selected.includes(id)),extra=state.selected.filter(id=>!required.includes(id));if(missing.length||extra.length){state.errors++;state.hadError=true;state.phase='busy';for(const id of extra){const el=activeRow()?.querySelector('[data-sign="'+id+'"]');el?.classList.remove('orange');el?.classList.add('red');}for(const id of state.selected.filter(id=>required.includes(id))){const el=activeRow()?.querySelector('[data-sign="'+id+'"]');el?.classList.remove('orange');el?.classList.add('green');}message('Torna a provar!',true);hint(extra.length?'Amb parèntesis, canvia només el signe o el factor exterior del terme complet. Els signes de dins es conserven.':'Has de canviar el signe de tots els termes complets dels dos membres. També compten els primers termes positius i els termes sense denominador.');paintActions();later(()=>{state.phase='select';renderHistory();state.selected.forEach(id=>activeRow()?.querySelector('[data-sign="'+id+'"]')?.classList.add('orange'));message('Revisa la selecció i prem «Ja està».');paintActions();},1000);return;}const scalar=Equations.rational(-1),left=state.eq.left.map(t=>Equations.scaleTerm(t,scalar)),right=state.eq.right.map(t=>Equations.scaleTerm(t,scalar));commit(Equations.scale(state.eq,scalar,'multiply',left,right),'Canvia els signes dels termes complets');}
 $('check-signs').addEventListener('click',checkSigns);
 
-const SYNC_URL='https://script.google.com/macros/s/AKfycbzIndtpmH62DE9PRB0UnNBFG3AI2TVaQX_lUdb1Iy_epanqlfuXiFW3Btuyd4Z9rt9G/exec';
+const SYNC_URL='https://script.google.com/a/macros/xtec.cat/s/AKfycbw0YIMta1Ph8xaw1nyUU807-hjqO44kTBBB5CgMlCy77UkX3g-qLvHs4CJvb71SBcU/exec';
 function status(s){
  const e=$('sync-status');if(e)e.textContent=s;const main=$('main-save-status');if(main)main.textContent=s;
  const icon=$('save-indicator');if(!icon)return;
@@ -309,7 +309,7 @@ function status(s){
 
 function uniqueId(){return crypto.randomUUID();}
 function rpc(payload){return new Promise((resolve,reject)=>{
- if(!SYNC_URL.startsWith('https://script.google.com/macros/s/'))return reject(Error('Falta configurar l’URL del nou Apps Script. Pots provar el mode convidat.'));
+ if(!/^https:\/\/script\.google\.com\/(?:a\/macros\/[a-zA-Z0-9.-]+\/s|macros\/s)\/[a-zA-Z0-9_-]+\/exec$/.test(SYNC_URL))return reject(Error('Falta configurar l’URL del nou Apps Script. Pots provar el mode convidat.'));
  const requestId=uniqueId(),frame=document.createElement('iframe'),form=document.createElement('form');
  frame.name='sync-'+requestId;frame.hidden=true;document.body.append(frame);
  const timer=setTimeout(()=>done(Error('Sense confirmació. Els canvis continuen pendents.')),30000);
