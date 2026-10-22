@@ -104,29 +104,36 @@ function generateBasic(level,recent=[]){for(let i=0;i<500;i++){const x=int(-8,8)
  }throw Error('Torna a demanar una equació nova.');}
 function denominators(eq){return [...new Set(allTerms(eq).map(t=>t.c.d).filter(d=>d>1))].sort((a,b)=>a-b);}
 const lcm=(a,b)=>a/gcd(a,b)*b;
+// Denominadors amb factors compartits i mcm variats, sense nombres desmesurats.
+function denominatorSet(level){
+ const sets=level===0?[[2,3,2],[3,4,2],[4,6,3],[3,6,2],[2,5,2],[4,5,2]]:
+ level===1?[[4,6,8],[6,8,12],[6,9,12],[8,12,6],[5,10,15],[6,10,15],[8,10,20],[9,12,18],[10,12,15],[8,14,7]]:
+ [[8,12,20],[9,12,18],[12,15,20],[8,18,12],[10,14,21],[12,16,24],[15,18,30],[14,21,28],[16,20,24],[12,18,27],[18,24,30],[8,15,24],[9,20,30]];
+ return pick(sets).slice().sort(()=>Math.random()-.5);
+}
 function generate(level,recent=[],track='basic'){
  if(track==='missingB'||track==='missingC')return generateIncomplete(level,recent,track);
  if(track==='quadratic')return generateQuadratic(level,recent);
  if(track==='basic')return generateBasic(level,recent);
  for(let attempt=0;attempt<500;attempt++){
- const x=int(-5,6),a=pick([2,3,4,-2,-3]),b=int(1,6),c=int(1,5),d=pick([2,3,4,6]),e=pick([2,3,4,6]);let eq;
+ const [d,e,f]=denominatorSet(level),x=int(-5,6),a=pick([2,3,4,-2,-3]),b=int(1,6),c=int(1,5);let eq;
  if(track==='paren'){
   if(level===0)eq={left:[group([term('x',1),term('n',b)],rational(a)),term('n',c)],right:[]};
   else if(level===1)eq={left:[group([term('x',2),term('n',b)],rational(a)),term('n',-c)],right:[group([term('x',1),term('n',c)],rational(pick([2,3,-2])))]};
   else eq={left:[group([group([term('x',1),term('n',b)],rational(2)),term('x',-1),term('n',-c)],rational(a)),term('n',b)],right:[group([term('x',2),term('n',-c)],rational(-2))]};
  }else{
   if(level===0)eq={left:[group([term('x',1),term('n',b)],rational(1,d),'fraction'),term('n',1)],right:[]};
-  else if(level===1)eq={left:[group([term('x',a),term('n',b)],rational(1,d),'fraction'),term('x',rational(1,e))],right:[group([term('x',1),term('n',-c)],rational(1,2),'fraction')]};
-  else eq={left:[group([group([term('x',1),term('n',b)],rational(a)),term('n',-c)],rational(1,d),'fraction'),group([term('x',1),term('n',c)],rational(-1,e),'fraction')],right:[term('x',rational(2,3))]};
+  else if(level===1)eq={left:[group([term('x',a),term('n',b)],rational(1,d),'fraction'),term('x',rational(1,e))],right:[group([term('x',1),term('n',-c)],rational(1,f),'fraction')]};
+  else eq={left:[group([group([term('x',1),term('n',b)],rational(a)),term('n',-c)],rational(1,d),'fraction'),group([term('x',1),term('n',c)],rational(-1,e),'fraction')],right:[term('x',rational(2,f))]};
  }
- const left=summary(eq.left),right=summary(eq.right),constant=add(mul(add(left.x,neg(right.x)),rational(x)),add(left.n,neg(right.n)));eq.right.push(term('n',constant));eq.left=clean(eq.left);eq.right=clean(eq.right);if(solution(eq).type!=='one')continue;if(!recent.includes(signature(eq)))return eq;
+ const left=summary(eq.left),right=summary(eq.right),constant=add(mul(add(left.x,neg(right.x)),rational(x)),add(left.n,neg(right.n)));eq.right.push(term('n',constant));eq.left=clean(eq.left);eq.right=clean(eq.right);if(solution(eq).type!=='one')continue;if(track==='fraction'){const m=denominators(eq).reduce(lcm,1);if(level===1&&(m<24||m>120))continue;if(level===2&&(m<60||m>360))continue;}if(!recent.includes(signature(eq)))return eq;
  }throw Error('Torna a demanar una equació nova.');
 }
 
 function quadratic(eq){const l=summary(eq.left),r=summary(eq.right);return {a:add(l.x2,neg(r.x2)),b:add(l.x,neg(r.x)),c:add(l.n,neg(r.n))};}
 function prepared(eq){for(const side of ['left','right']){const other=side==='left'?'right':'left';if(eq[other].length||eq[side].some(t=>t.kind==='g')||new Set(eq[side].map(t=>t.kind)).size!==eq[side].length)continue;const v=summary(eq[side]);if(v.x2.n)return {a:v.x2,b:v.x,c:v.n,side};}return null;}
 function formulaAdvice(q){if(!q)return '';const ds=[q.a,q.b,q.c];const common=ds.every(v=>v.d===1)?ds.map(v=>Math.abs(v.n)).reduce(gcd):1;if(q.a.n<0&&common>1)return 'Pots dividir tots els termes pel factor comú '+common+' i canviar tots els signes perquè a sigui positiva.';if(q.a.n<0)return 'Pots canviar tots els signes perquè a sigui positiva.';if(common>1)return 'Pots dividir tots els termes pel factor comú '+common+' abans de fer la fórmula.';if(ds.filter(v=>v.n<0).length>=2)return 'Hi ha diversos signes negatius: revisa especialment −b i el producte ac. Pots canviar tots els signes si et resulta més còmode.';return '';}
-function generateQuadratic(level,recent=[]){for(let i=0;i<500;i++){let a,b,c;if(level<2){const r=int(-6,6)||2,t=int(-6,6)||-3;a=level===0?pick([1,1,2,-1]):pick([2,4,6,-2]);b=-a*(r+t);c=a*r*t;if(!b||!c)continue;}else{a=pick([1,2,3,-2]);b=int(-9,9)||3;c=int(-12,12)||4;}let eq;if(level===0)eq={left:[term('x2',a),term('x',b),term('n',c)],right:[]};else if(level===1){const f=2,k=2*int(1,5),h=int(1,4);eq={left:[group([term('x2',rational(a,f)),term('x',rational(b+k,f))],rational(f)),term('n',c+h)],right:[term('x',k),term('n',h)]};}else{const d=pick([2,3,4,6]),e=pick([2,3,4]),k=int(1,5);eq={left:[group([term('x2',a),term('x',b),term('n',c+k)],rational(1,d),'fraction'),group([term('x',2),term('n',k)],rational(1,e),'fraction')],right:[term('x',rational(2,e)),term('n',add(rational(k,e),rational(k,d)))]};}if(!recent.includes(signature(eq)))return eq;}throw Error('Demana una altra equació.');}
+function generateQuadratic(level,recent=[]){for(let i=0;i<500;i++){let a,b,c;if(level<2){const r=int(-6,6)||2,t=int(-6,6)||-3;a=level===0?pick([1,1,2,-1]):pick([2,4,6,-2]);b=-a*(r+t);c=a*r*t;if(!b||!c)continue;}else{a=pick([1,2,3,-2]);b=int(-9,9)||3;c=int(-12,12)||4;}let eq;if(level===0)eq={left:[term('x2',a),term('x',b),term('n',c)],right:[]};else if(level===1){const f=2,k=2*int(1,5),h=int(1,4);eq={left:[group([term('x2',rational(a,f)),term('x',rational(b+k,f))],rational(f)),term('n',c+h)],right:[term('x',k),term('n',h)]};}else{const [d,e]=denominatorSet(level),k=int(1,5);eq={left:[group([term('x2',a),term('x',b),term('n',c+k)],rational(1,d),'fraction'),group([term('x',2),term('n',k)],rational(1,e),'fraction')],right:[term('x',rational(2,e)),term('n',add(rational(k,e),rational(k,d)))]};}if(!recent.includes(signature(eq)))return eq;}throw Error('Demana una altra equació.');}
 // Numeric expressions only; no executable JavaScript or variables.
 function generateIncomplete(level,recent,track){for(let i=0;i<500;i++){const a=pick([1,2,3,-1,-2]),r=int(1,8),b=track==='missingC'?-a*r:0,c=track==='missingB'?(level===2?pick([-1,1])*int(1,18)*a:-a*r*r):0;let eq={left:clean([term('x2',a),term('x',b),term('n',c)]),right:[]};if(level===1){const h=int(1,6);eq={left:[group(clean([term('x2',a),term('x',b)]),rational(2)),term('n',2*c+h)],right:[term('n',h)]};}if(level===2){const d=pick([2,3,4]),h=int(1,5);eq={left:[group(clean([term('x2',a),term('x',b),term('n',c+h)]),rational(1,d),'fraction')],right:[term('n',rational(h,d))]};}if(!recent.includes(signature(eq)))return eq;}throw Error('Demana una altra equació.');}
 function numericExpression(text){const s=text.replace(/\s+/g,'').replace(/−/g,'-').replace(/,/g,'.').replace(/·|•/g,'*').replace(/²/g,'^2');let i=0;function atom(){if(s.startsWith('sqrt(',i)){i+=5;const v=sum();if(s[i++]!==')'||v<0)throw Error('Revisa l’arrel.');return Math.sqrt(v);}if(s[i]==='('){i++;const v=sum();if(s[i++]!==')')throw Error('Tanca els parèntesis.');return v;}const m=s.slice(i).match(/^(?:\d+(?:\.\d*)?|\.\d+)/);if(!m)throw Error('Escriu nombres, fraccions o una expressió numèrica.');i+=m[0].length;return Number(m[0]);}function power(){let v=atom();if(s[i]==='^'){i++;if(s[i++]!=='2')throw Error('Només s’admet el quadrat en aquest camp.');v*=v;}return v;}function unary(){if(s[i]==='+'){i++;return unary();}if(s[i]==='-'){i++;return -unary();}return power();}function product(){let v=unary();while(s[i]==='*'||s[i]==='/'){const op=s[i++],w=unary();if(op==='/'&&!w)throw Error('No es pot dividir entre zero.');v=op==='*'?v*w:v/w;}return v;}function sum(){let v=product();while(s[i]==='+'||s[i]==='-'){const op=s[i++],w=product();v=op==='+'?v+w:v-w;}return v;}const v=sum();if(i!==s.length||!Number.isFinite(v)||Math.abs(v)>1e12)throw Error('Revisa l’expressió numèrica.');return v;}
