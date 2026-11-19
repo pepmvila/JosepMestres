@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Temps d'examen</title>
+<style>
+:root{--accent:#2563eb;--bg:#f4f7fb;--ink:#172033}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Arial,Helvetica,sans-serif;background:#101827;color:var(--ink);overflow:hidden}
+body{display:flex;align-items:stretch;justify-content:stretch}
+main{width:100vw;height:100vh;display:grid;grid-template-columns:minmax(330px,42%) 1fr;gap:1.2vw;padding:1.2vw;background:var(--bg)}
+.timer-panel,.message-panel{border-radius:22px;background:#fff;box-shadow:0 8px 32px #10204016;min-width:0;min-height:0}
+.timer-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2vh 2vw;gap:1.5vh}
+.kicker{font-size:clamp(13px,1.2vw,20px);font-weight:700;letter-spacing:.14em;color:#64748b;text-transform:uppercase}
+.clock{width:min(36vw,65vh,520px);height:min(36vw,65vh,520px);max-width:100%;overflow:visible}
+.clock-face{fill:#fff;stroke:var(--accent);stroke-width:7}
+.tick{stroke:#26364d;stroke-width:3;stroke-linecap:round}
+.hand{stroke:#26364d;stroke-width:5;stroke-linecap:round}
+.digital{font-size:clamp(38px,5.2vw,84px);font-weight:800;letter-spacing:.025em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.remaining{font-size:clamp(16px,1.8vw,28px);font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+.status{font-size:clamp(13px,1.15vw,18px);font-weight:700;color:#64748b;min-height:1.3em;text-align:center}
+.message-panel{padding:clamp(24px,3vw,56px);display:flex;flex-direction:column;overflow:hidden}
+.message-heading{font-size:clamp(16px,1.3vw,22px);font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin-bottom:2vh}
+#message{white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.22;font-size:clamp(20px,3vw,58px);font-weight:600;overflow:hidden}
+footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:1.5vh;color:#94a3b8;font-size:clamp(10px,.8vw,13px)}
+button{border:0;border-radius:9px;padding:9px 13px;background:#e8eef8;color:#1e3a5f;font-weight:700;cursor:pointer}
+button.active{background:#dbeafe;outline:2px solid var(--accent)}
+#toolbar{position:fixed;left:14px;bottom:14px;z-index:5;display:flex;gap:6px;opacity:.15;transition:opacity .2s}
+#toolbar:hover,#toolbar:focus-within{opacity:1}
+#settings{display:none;position:fixed;inset:0;z-index:10;background:#07111dcc;align-items:center;justify-content:center;padding:20px}
+#settings.open{display:flex}
+.dialog{background:#fff;color:#172033;border-radius:16px;padding:24px;width:min(680px,96vw);max-height:90vh;overflow:auto}
+.dialog h2{margin-top:0}
+.dialog label{display:block;font-weight:700;margin:14px 0 6px}
+.dialog input,.dialog textarea{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font:inherit}
+.dialog textarea{min-height:110px}
+.help{font-size:14px;color:#475569;line-height:1.45}
+.dialog-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.primary{background:#1d4ed8;color:white}
+@media(max-aspect-ratio:1/1){main{grid-template-columns:1fr;grid-template-rows:45% 1fr;gap:1vh;padding:1vh}.timer-panel{flex-direction:row;flex-wrap:wrap}.clock{height:25vh;width:25vh}.message-panel{padding:3vw}#message{font-size:clamp(18px,4vw,36px)}}
+</style>
+</head>
+<body>
+<main>
+<section class="timer-panel">
+  <div class="kicker">Temps d'examen</div>
+  <svg class="clock" viewBox="0 0 240 240" aria-label="Rellotge analògic">
+    <circle class="clock-face" cx="120" cy="120" r="109"/>
+    <g id="ticks"></g>
+    <g id="numbers" fill="#26364d" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="middle"></g>
+    <line id="hourHand" class="hand" x1="120" y1="120" x2="120" y2="68"/>
+    <line id="minuteHand" class="hand" x1="120" y1="120" x2="120" y2="37" style="stroke-width:3.5"/>
+    <circle cx="120" cy="120" r="5.5" fill="#26364d"/>
+  </svg>
+  <div class="digital" id="digital">--:--:--</div>
+  <div class="remaining" id="remaining">Temps restant: --:--</div>
+  <div class="status" id="status">Selecciona o espera un horari</div>
+</section>
+<section class="message-panel">
+  <div class="message-heading">Informació i instruccions</div>
+  <div id="message">Benvinguts/des a l'examen.
+
+Llegiu atentament les instruccions abans de començar.
+
+Molta sort!</div>
+  <footer><span id="sync">Text local · configura Google Sheets</span><span id="slotLabel">Horari automàtic</span></footer>
+</section>
+</main>
+<div id="toolbar">
+  <select id="slotSelect" aria-label="Selecciona horari" style="border:0;border-radius:9px;padding:9px 10px;background:#e8eef8;color:#1e3a5f;font-weight:700">
+   <option value="auto">Horari automàtic</option>
+   <option value="0">08:00 – 09:00</option><option value="1">09:00 – 10:00</option>
+   <option value="2">10:00 – 11:00</option><option value="3">11:30 – 12:30</option>
+   <option value="4">12:30 – 13:30</option><option value="5">13:30 – 14:30</option>
+  </select>
+  <button id="settingsBtn" title="Configuració">⚙ Configuració</button>
+  <button id="fullBtn" title="Pantalla completa">⛶ Pantalla completa</button>
+</div>
+<div id="settings">
+ <div class="dialog">
+  <h2>Configuració</h2>
+  <p class="help">Enganxa l'enllaç CSV publicat del teu Google Sheet. La pàgina el consultarà periòdicament. Per a control remot, canvia la cel·la de l'horari al full.</p>
+  <label for="sheetUrl">URL CSV de Google Sheets</label>
+  <input id="sheetUrl" readonly>
+  <label for="localMessage">Text alternatiu (si el full no està configurat)</label>
+  <textarea id="localMessage"></textarea>
+  <div class="help">
+   <b>Format del full:</b> A1 = <code>missatge</code>, B1 = text que es mostrarà; A2 = <code>horari</code>, B2 = una de les opcions: <code>08:00-09:00</code>, <code>09:00-10:00</code>, <code>10:00-11:00</code>, <code>11:30-12:30</code>, <code>12:30-13:30</code> o <code>13:30-14:30</code>. També pots posar <code>auto</code> a B2 perquè detecti l'horari segons l'hora real.
+   <br><br>Al full: Fitxer → Comparteix → Publica al web → selecciona el full i format CSV → Publica. Copia l'enllaç publicat aquí. Qualsevol persona amb l'enllaç podrà llegir el text publicat.
+  </div>
+  <div class="dialog-actions"><button id="closeSettings">Tancar</button><button class="primary" id="saveSettings">Desar</button></div>
+ </div>
+</div>
+<script>
+const slots=[["08:00","09:00"],["09:00","10:00"],["10:00","11:00"],["11:30","12:30"],["12:30","13:30"],["13:30","14:30"]];
+const $=id=>document.getElementById(id);
+const DEFAULT_SHEET_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vSfYiyxkncgw25IXXoJhF95e_3ew4eisumWmIAVdlSUudwD64JE4FclduCoK77xpngZcNYVAmUmL5-X/pub?output=csv";
+let selectedSlot=null, sheetTimer=null, currentMessage="", localSlotOverride=false;
+
+function buildClock(){
+ const ticks=$("ticks"), nums=$("numbers");
+ for(let i=0;i<60;i++){
+  const a=i*Math.PI/30, major=i%5===0;
+  const r1=major?94:99, r2=major?105:104;
+  const x1=120+Math.sin(a)*r1,y1=120-Math.cos(a)*r1;
+  const x2=120+Math.sin(a)*r2,y2=120-Math.cos(a)*r2;
+  const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+  line.setAttribute("x1",x1);line.setAttribute("y1",y1);line.setAttribute("x2",x2);line.setAttribute("y2",y2);
+  line.setAttribute("class","tick");line.setAttribute("opacity",major?"1":".35");line.setAttribute("stroke-width",major?"2.5":"1.3");ticks.appendChild(line);
+ }
+ for(let n=1;n<=12;n++){
+  const a=n*Math.PI/6,x=120+Math.sin(a)*77,y=120-Math.cos(a)*77;
+  const t=document.createElementNS("http://www.w3.org/2000/svg","text");
+  t.setAttribute("x",x);t.setAttribute("y",y);t.textContent=n;nums.appendChild(t);
+ }
+}
+function parseTime(s){const [h,m]=s.split(":").map(Number);return h*60+m}
+function activeSlot(now){
+ const mins=now.getHours()*60+now.getMinutes();
+ return slots.findIndex(([a,b])=>mins>=parseTime(a)&&mins<parseTime(b));
+}
+function setAccent(color){
+ document.documentElement.style.setProperty("--accent",color);
+}
+function fitMessage(){
+ const el=$("message"), panel=el.parentElement;
+ let size=Math.min(window.innerWidth*.034,window.innerHeight*.075,64);
+ el.style.fontSize=size+"px";
+ while((el.scrollHeight>el.clientHeight+2 || el.scrollWidth>el.clientWidth+2) && size>12){size-=1;el.style.fontSize=size+"px"}
+ while(size<Math.min(window.innerWidth*.034,window.innerHeight*.075,64)-1){
+  const next=size+1;el.style.fontSize=next+"px";
+  if(el.scrollHeight>el.clientHeight+2 || el.scrollWidth>el.clientWidth+2){el.style.fontSize=size+"px";break}
+  size=next;
+ }
+}
+function render(){
+ const now=new Date(), hh=now.getHours(), mm=now.getMinutes(), ss=now.getSeconds();
+ $("digital").textContent=[hh,mm,ss].map(n=>String(n).padStart(2,"0")).join(":");
+ const minute=hh*60+mm+ss/60, hourAngle=((hh%12)+mm/60+ss/3600)*30, minuteAngle=(mm+ss/60)*6;
+ $("hourHand").setAttribute("transform",`rotate(${hourAngle} 120 120)`);
+ $("minuteHand").setAttribute("transform",`rotate(${minuteAngle} 120 120)`);
+ let idx=selectedSlot===null?activeSlot(now):selectedSlot;
+ if(idx<0){$("remaining").textContent="Temps restant: --:--";$("status").textContent="Fora de l'horari d'examen";$("slotLabel").textContent="Sense examen actiu";setAccent("#2563eb");return}
+ const [start,end]=slots[idx], endMin=parseTime(end), left=Math.max(0,Math.ceil((endMin-minute)*60));
+ const mins=Math.ceil(left/60), sec=left%60;
+ $("remaining").textContent=`Temps restant: ${String(mins).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+ $("slotLabel").textContent=`Horari: ${start} – ${end}`;
+ if(left<=300){setAccent("#dc2626");$("status").textContent="Últims cinc minuts"}
+ else if(left<=600){setAccent("#f97316");$("status").textContent="Queden deu minuts"}
+ else if(left<=900){setAccent("#eab308");$("status").textContent="Queden quinze minuts"}
+ else if(left<=1800){setAccent("#16a34a");$("status").textContent="Queden trenta minuts"}
+ else{setAccent("#2563eb");$("status").textContent="Temps d'examen"}
+}
+function parseCSV(text){
+ const rows=[];let row=[],cell="",quoted=false;
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(c==='"'&&quoted&&text[i+1]==='"'){cell+='"';i++}
+  else if(c==='"')quoted=!quoted;
+  else if(c===','&&!quoted){row.push(cell);cell=""}
+  else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell);rows.push(row);row=[];cell=""}
+  else cell+=c;
+ }
+ if(cell.length||row.length){row.push(cell);rows.push(row)}
+ return rows;
+}
+async function fetchSheet(){
+ const url=DEFAULT_SHEET_URL;
+ try{
+  const res=await fetch(url,{cache:"no-store"});if(!res.ok)throw Error("HTTP "+res.status);
+  const rows=parseCSV(await res.text());
+  const values={};rows.forEach(r=>{if(r.length>=2)values[r[0].trim().toLowerCase()]=r.slice(1).join(",").trim()});
+  if(values.missatge!==undefined&&values.missatge!==currentMessage){currentMessage=values.missatge;$("message").textContent=currentMessage;fitMessage()}
+  if(values.horari){const v=values.horari.toLowerCase().replace(/\s/g,"");
+   if(v==="auto"){selectedSlot=null}
+   else {const i=slots.findIndex(([a,b])=>(a+"-"+b).toLowerCase()===v);if(i>=0)selectedSlot=i}
+  }
+  $("sync").textContent="Google Sheets · actualitzat "+new Date().toLocaleTimeString("ca-ES");
+ }catch(e){$("sync").textContent="No s'ha pogut llegir el full · es manté l'últim text"}
+}
+$("slotSelect").onchange=e=>{localSlotOverride=e.target.value!=="auto";selectedSlot=localSlotOverride?Number(e.target.value):null;render()};
+$("settingsBtn").onclick=()=>{$("sheetUrl").value=DEFAULT_SHEET_URL;$("localMessage").value=currentMessage||$("message").textContent;$("settings").classList.add("open")};
+$("closeSettings").onclick=()=>$("settings").classList.remove("open");
+$("saveSettings").onclick=()=>{
+ const url=DEFAULT_SHEET_URL, msg=$("localMessage").value;
+ currentMessage=msg;$("message").textContent=msg;fitMessage();
+ $("settings").classList.remove("open");fetchSheet();
+ if(sheetTimer)clearInterval(sheetTimer);sheetTimer=setInterval(fetchSheet,10000);
+};
+$("fullBtn").onclick=()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()};
+window.addEventListener("resize",fitMessage);
+buildClock();render();setInterval(render,250);fitMessage();
+sheetTimer=setInterval(fetchSheet,10000);fetchSheet();
+</script>
+</body>
+</html>
