@@ -66,6 +66,10 @@ button.primary{background:var(--accent);color:white;font-weight:750}
 .keypad-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .keypad-grid button{padding:4px;min-height:38px;font-size:1.08rem;font-weight:650}
 .keypad-grid [data-key="enter"]{grid-column:span 4}
+.keypad-grid [data-key="right"]{grid-column:span 2}
+.keypad-grid :is([data-key="left"],[data-key="right"],[data-key="up"],[data-key="down"]){background:#dbe9ff;color:#142039}
+#keypad-caret{overflow:auto;white-space:pre;color:#dce9ff;font:1rem monospace;min-height:1.5rem;margin-bottom:6px}
+#keypad-caret b{display:inline-block;width:0;border-left:2px solid #65e3e0;height:1em;vertical-align:-.15em}
 @media(max-width:480px){.game-hud{gap:5px}.game-hud>div{padding:7px}.game-hud small{font-size:.72rem}}
 </style>
 <script>
@@ -119,7 +123,11 @@ window.MathJax = {chtml: {adaptiveCSS: false}, startup: {typeset: false, ready()
 </div></section>
 <section class="panel" id="end" hidden aria-labelledby="resultTitle"><h2 id="resultTitle" tabindex="-1">Resultat de la ronda</h2><p id="summary"></p><p id="end-bonus" hidden></p><div class="tools"><button id="retry" class="primary">Torna a jugar</button><button id="homeEnd">Tria un altre bloc</button></div><div id="review" class="review"></div></section>
 </main>
-<aside id="keypad" aria-label="Teclat de calculadora" hidden><div class="bar"><strong>Teclat</strong><button id="keypad-close" type="button" aria-label="Tanca el teclat">✕</button></div><output id="keypad-display"></output><div class="keypad-grid"><button type="button" data-key="7" aria-label="7">7</button><button type="button" data-key="8" aria-label="8">8</button><button type="button" data-key="9" aria-label="9">9</button><button type="button" data-key="÷" aria-label="÷">÷</button><button type="button" data-key="delete" aria-label="Esborra un caràcter">⌫</button><button type="button" data-key="4" aria-label="4">4</button><button type="button" data-key="5" aria-label="5">5</button><button type="button" data-key="6" aria-label="6">6</button><button type="button" data-key="×" aria-label="×">×</button><button type="button" data-key="^" aria-label="Potència">xⁿ</button><button type="button" data-key="1" aria-label="1">1</button><button type="button" data-key="2" aria-label="2">2</button><button type="button" data-key="3" aria-label="3">3</button><button type="button" data-key="-" aria-label="Menys">−</button><button type="button" data-key="√" aria-label="Arrel quadrada">√</button><button type="button" data-key="0" aria-label="0">0</button><button type="button" data-key="(" aria-label="(">(</button><button type="button" data-key=")" aria-label=")">)</button><button type="button" data-key="+" aria-label="+">+</button><button type="button" data-key="abs" aria-label="Valor absolut">|x|</button><button type="button" data-key="enter" aria-label="Comprova">Comprova</button><button type="button" data-key="clear" aria-label="Esborra tot">C</button></div></aside>
+<aside id="keypad" aria-label="Teclat de calculadora" hidden><div class="bar"><strong>Teclat</strong><button id="keypad-close" type="button" aria-label="Tanca el teclat">✕</button></div><output id="keypad-display"></output><div id="keypad-caret" aria-hidden="true"></div><div class="keypad-grid">
+<button type="button" data-key="left" aria-label="Mou el cursor a l’esquerra">←</button>
+<button type="button" data-key="up" aria-label="Surt del grup actual">↑</button>
+<button type="button" data-key="down" aria-label="Entra al grup següent">↓</button>
+<button type="button" data-key="right" aria-label="Mou el cursor a la dreta">→</button><button type="button" data-key="7" aria-label="7">7</button><button type="button" data-key="8" aria-label="8">8</button><button type="button" data-key="9" aria-label="9">9</button><button type="button" data-key="÷" aria-label="÷">÷</button><button type="button" data-key="delete" aria-label="Esborra un caràcter">⌫</button><button type="button" data-key="4" aria-label="4">4</button><button type="button" data-key="5" aria-label="5">5</button><button type="button" data-key="6" aria-label="6">6</button><button type="button" data-key="×" aria-label="×">×</button><button type="button" data-key="^" aria-label="Potència">xⁿ</button><button type="button" data-key="1" aria-label="1">1</button><button type="button" data-key="2" aria-label="2">2</button><button type="button" data-key="3" aria-label="3">3</button><button type="button" data-key="-" aria-label="Menys">−</button><button type="button" data-key="√" aria-label="Arrel quadrada">√</button><button type="button" data-key="0" aria-label="0">0</button><button type="button" data-key="(" aria-label="(">(</button><button type="button" data-key="+" aria-label="+">+</button><button type="button" data-key="abs" aria-label="Valor absolut">|x|</button><button type="button" data-key="enter" aria-label="Comprova">Comprova</button><button type="button" data-key="clear" aria-label="Esborra tot">C</button></div></aside>
 <dialog id="player-dialog" class="panel" aria-labelledby="player-title">
 <form id="player-form">
 <h2 id="player-title">Entra amb el correu del centre</h2>
@@ -193,6 +201,16 @@ function render(tree) {
     default: return (kind==="·"||kind===":" ? wrapped(left,a) : a)+" "+kind+" "+wrapped(right,b);
   }
 }
+function delimiterDepth(tree) {
+  if (typeof tree !== "object") return 0;
+  return Number(["()", "[]", "||"].includes(tree.kind)) +
+    Math.max(delimiterDepth(tree.left), delimiterDepth(tree.right));
+}
+function latexGroup(left, expression, right, tree) {
+  const depth = delimiterDepth(tree);
+  const minimumHeight = depth ? "\\vphantom{\\rule{0em}{" + (1.02 + 0.24 * depth) + "em}}" : "";
+  return "\\left" + left + minimumHeight + expression + "\\right" + right;
+}
 function latex(tree) {
   if (typeof tree === "number") return String(tree);
   const {kind, left, right} = tree;
@@ -200,9 +218,9 @@ function latex(tree) {
   const b = right === undefined ? "" : latex(right);
   const wrap = (node, value) => typeof node === "number" && node < 0 ? "(" + value + ")" : value;
   switch (kind) {
-    case "()": return "\\left(" + a + "\\right)";
-    case "[]": return "\\left[" + a + "\\right]";
-    case "||": return "\\left|" + a + "\\right|";
+    case "()": return latexGroup("(", a, ")", left);
+    case "[]": return latexGroup("[", a, "]", left);
+    case "||": return latexGroup("|", a, "|", left);
     case "√": return "\\sqrt{" + a + "}";
     case "^": return "{" + wrap(left, a) + "}^{" + b + "}";
     case "neg": return "-" + wrap(left, a);
@@ -242,7 +260,12 @@ function parseNotebook(text) {
       if (!take(close)) throw Error();
       return build(tree);
     }
-    if (take("√")) return root(atom());
+    if (take("√")) {
+      if (!take("(")) return root(atom());
+      const radicand = sum();
+      if (!take(")")) throw Error();
+      return root(radicand);
+    }
     const token = tokens[pos++];
     if (!/^\d{1,9}$/.test(token || "")) throw Error();
     return Number(token);
@@ -288,6 +311,9 @@ function updateKeypad() {
     try { tex = latex(parseNotebook(raw).tree); } catch {}
   }
   paintMath($("keypad-display"), tex, raw || "0");
+  const cursor = document.createElement("b");
+  $("keypad-caret").replaceChildren(raw.slice(0, keypadTarget.selectionEnd), cursor, raw.slice(keypadTarget.selectionEnd));
+  cursor.scrollIntoView({block: "nearest", inline: "nearest"});
   if (keypadTarget.id === "notebook-input") paintMath($("notebook-preview"), tex, raw);
 }
 for (const field of [$("answer"), $("notebook-input")]) {
@@ -307,6 +333,51 @@ for (const field of [$("answer"), $("notebook-input")]) {
   field.addEventListener("focus", showKeypad);
   field.addEventListener("click", showKeypad);
   field.addEventListener("input", updateKeypad);
+  field.addEventListener("keyup", updateKeypad);
+  field.addEventListener("select", updateKeypad);
+  field.addEventListener("keydown", event => {
+    if (field.id !== "notebook-input" || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === "(" || event.key === "√") {
+      event.preventDefault();
+      insertPair(field, event.key === "√" ? "√(" : "(", ")");
+      updateKeypad();
+    } else if (event.key === ")" && field.selectionStart === field.selectionEnd &&
+               field.value[field.selectionEnd] === ")") {
+      event.preventDefault();
+      field.setSelectionRange(field.selectionEnd + 1, field.selectionEnd + 1);
+      updateKeypad();
+    }
+  });
+}
+function insertPair(field, opening, closing) {
+  const {selectionStart: start, selectionEnd: end} = field;
+  const selected = field.value.slice(start, end);
+  field.setRangeText(opening + selected + closing, start, end, "end");
+  if (!selected) field.setSelectionRange(start + opening.length, start + opening.length);
+}
+
+function moveKeypadCursor(field, key) {
+  const {selectionStart: start, selectionEnd: end, value} = field;
+  let position = end;
+  if (key === "left") position = start === end ? start - 1 : start;
+  if (key === "right") position = start === end ? end + 1 : end;
+  if (key === "up") {
+    let nested = 0;
+    position = 0;
+    for (let i = end; i < value.length; i++) {
+      if (value[i] === "(") nested++;
+      if (value[i] === ")" && nested-- === 0) {
+        position = i + 1;
+        break;
+      }
+    }
+  }
+  if (key === "down") {
+    const opening = value.indexOf("(", end);
+    position = opening === -1 ? value.length : opening + 1;
+  }
+  position = Math.max(0, Math.min(value.length, position));
+  field.setSelectionRange(position, position);
 }
 $("keypad-close").onclick = closeKeypad;
 document.addEventListener("keydown", event => {
@@ -327,10 +398,10 @@ $("keypad").addEventListener("click", event => {
   const {selectionStart: start, selectionEnd: end} = field;
   if (key === "delete") field.setRangeText("", start === end ? Math.max(0, start - 1) : start, end, "end");
   else if (key === "clear") field.value = "";
-  else if (key === "abs") {
-    field.setRangeText("|" + field.value.slice(start, end) + "|", start, end, "end");
-    if (start === end) field.setSelectionRange(start + 1, start + 1);
-  } else field.setRangeText(key, start, end, "end");
+  else if (key === "abs") insertPair(field, "|", "|");
+  else if (key === "(" || key === "√") insertPair(field, key === "√" ? "√(" : "(", ")");
+  else if (["left", "right", "up", "down"].includes(key)) moveKeypadCursor(field, key);
+  else field.setRangeText(key, start, end, "end");
   field.focus();
   updateKeypad();
 });
@@ -483,7 +554,6 @@ document.documentElement.style.setProperty("--avatar-atlas",'url("'+AVATAR_ATLAS
 document.documentElement.style.setProperty("--historic-atlas",'url("'+HISTORIC_ATLAS+'")');
 
 const PILOT_URL = 'https://script.google.com/macros/s/AKfycbx2o4iFcn3CcfnR2FB9jaIhOPu-fe-6ghErxbzbCh2T9dl1PZBXXkPIy4jfuaB5QJcHWw/exec';
-const PILOT_EMAIL = 'prova@institutmestres.com';
 const PILOT_CATEGORIES = [
   'positius_negatius', 'conjunt_enters', 'sumes_restes',
   'sumes_restes_parentesis', 'multiplicacio_divisio', 'potencies_arrels',
@@ -494,12 +564,13 @@ const pilotStoragePrefix = 'puntuacions-1eso:enters:intent:';
 let pilotRoundId = null;
 let pilotSyncing = false;
 
-function loadPilotQueue() {
+function loadPilotQueue(email) {
+  pilotQueue.clear();
   try {
     for (const key of Object.keys(localStorage)) {
       if (!key.startsWith(pilotStoragePrefix)) continue;
       const attempt = JSON.parse(localStorage.getItem(key));
-      if (attempt?.correu === PILOT_EMAIL && key === pilotStoragePrefix + attempt.idPartida) {
+      if (attempt?.correu === email && key === pilotStoragePrefix + attempt.idPartida) {
         pilotQueue.set(attempt.idPartida, attempt);
       }
     }
@@ -509,7 +580,7 @@ function loadPilotQueue() {
 async function flushPilot() {
   if (pilotSyncing || !pilotQueue.size) return;
   pilotSyncing = true;
-  syncStatus('Desant les partides de prova…');
+  syncStatus('Desant les partides…');
   try {
     for (const [id, attempt] of pilotQueue) {
       const response = await fetch(PILOT_URL, {
@@ -528,7 +599,7 @@ async function flushPilot() {
       pilotQueue.delete(id);
       try { localStorage.removeItem(pilotStoragePrefix + id); } catch {}
     }
-    syncStatus('Partida de prova desada a Intents.');
+    syncStatus('Partida desada a Intents.');
   } catch (error) {
     syncStatus((error instanceof TypeError || error.name === 'TimeoutError'
       ? 'El full no ha confirmat el desament.'
@@ -542,7 +613,7 @@ function savePilotRound() {
   if (!pilotRoundId) return;
   const attempt = {
     idPartida: pilotRoundId,
-    correu: PILOT_EMAIL,
+    correu: player.email,
     joc: 'enters',
     categoria: PILOT_CATEGORIES[active],
     punts: score,
@@ -556,7 +627,7 @@ function savePilotRound() {
   void flushPilot();
 }
 
-function rpc(payload){
+function rpc(payload, timeout=25000){
   return new Promise((resolve,reject)=>{
     const requestId=crypto.randomUUID();
     const frame=document.createElement("iframe");
@@ -571,7 +642,7 @@ function rpc(payload){
     input.value=JSON.stringify({...payload,game:GAME_ID,requestId});
     form.append(input);
     document.body.append(frame,form);
-    const timer=setTimeout(()=>finishRpc(Error("El full no ha confirmat la connexió. Comprova que has iniciat sessió amb el compte del centre i torna-ho a provar.")),25000);
+    const timer=setTimeout(()=>finishRpc(Error("El full no ha confirmat la connexió. Comprova que has iniciat sessió amb el compte del centre i torna-ho a provar.")),timeout);
     function finishRpc(error,result){
       clearTimeout(timer);
       window.removeEventListener("message",receive);
@@ -596,7 +667,7 @@ function rpc(payload){
 
 function syncStatus(message,retry=false){
   $("sync-status").textContent=message;
-  $("sync-retry").hidden=!retry;
+  $("sync-retry").hidden=!(retry || pilotQueue.size || pending);
 }
 function queueKey(email){return GAME_ID+":pending:"+email;}
 function persistPending(){
@@ -675,7 +746,7 @@ function activatePlayer(){
   $("menu").children[0].focus();
 }
 function openProfile(){
-  if (pilotSyncing || (player?.pilot && !$("play").hidden)) {
+  if (pilotSyncing || (player?.email && !$("play").hidden)) {
     if (!pilotSyncing) syncStatus("Acaba la ronda o torna al menú abans de canviar de jugador.");
     return;
   }
@@ -693,47 +764,61 @@ async function login(event){
   if(loggingIn) return;
   loggingIn=true;
   const field=$("player-name"),email=field.value.trim().toLowerCase();
-  if (email === PILOT_EMAIL) {
-    player = {email, name: "Compte de prova", firstName: "Compte", lastName: "Prova", avatar: null, pilot: true};
-    records = {};
+  $("login").disabled=$("guest").disabled=true;
+  field.readOnly=true;
+  $("login-error").textContent="Cercant el correu a Alumnes…";
+  try {
+    const response = await fetch(PILOT_URL, {
+      method: "POST",
+      body: new URLSearchParams({accio: "identifica", correu: email}),
+      credentials: "omit",
+      signal: AbortSignal.timeout(15000)
+    });
+    if (!response.ok) throw Error("El full de puntuacions no respon.");
+    const result = await response.json();
+    if (!result.ok) {
+      throw Error(result.error === "alumne_inactiu_o_inexistent"
+        ? "Aquest correu no figura com a actiu a la pestanya Alumnes."
+        : "El full no ha pogut validar el correu (" + (result.error || "error desconegut") + ").");
+    }
+
+    // Recover existing avatars and records when the old profile service is available.
+    const previous = await rpc({action: "load", email}, 4500).catch(() => null);
+    const name = email.split("@")[0];
+    player = {email, name: previous?.name || name, firstName: previous?.firstName || name,
+      lastName: previous?.lastName || "", avatar: previous?.avatar ?? null, pilot: !previous};
+    records = {...previous?.scores};
+    revision = previous?.revision || "";
+    pending = null;
     try {
-      const profile = JSON.parse(localStorage.getItem(GAME_ID + ":pilot-profile") || "null");
-      if (profile) {
-        records = profile.records || {};
-        player.avatar = profile.avatar ?? null;
+      const local = JSON.parse(localStorage.getItem(localProfileKey(email)) ||
+        (email === "prova@institutmestres.com" && localStorage.getItem(GAME_ID + ":pilot-profile")) || "null");
+      if (local) {
+        for (const key of keys) records[key] = Math.max(records[key] || 0, local.records?.[key] || 0);
+        if (player.pilot) player.avatar = local.avatar ?? null;
+      }
+      if (!player.pilot) {
+        const cached = JSON.parse(localStorage.getItem(queueKey(email)) || "null");
+        if (cached?.email === email && cached.action === "save" && typeof cached.scores === "object") {
+          pending = cached;
+          if (pending.revision === revision) {
+            for (const key of keys) records[key] = Math.max(records[key] || 0, pending.scores[key] || 0);
+          }
+        }
       }
       localStorage.setItem(GAME_ID + ":email", email);
     } catch {}
-    loadPilotQueue();
+    loadPilotQueue(email);
     activatePlayer();
-    syncStatus("Mode prova de Google Sheets.");
-    void flushPilot();
+    syncStatus("Correu actiu. Les partides es desaran al Google Sheets.");
+    if (pending) void flushScores();
+    if (pilotQueue.size) void flushPilot();
+  } catch (error) {
+    $("login-error").textContent = error instanceof TypeError || error.name === "TimeoutError"
+      ? "No s’ha pogut connectar amb el full de puntuacions. Torna-ho a provar."
+      : error.message;
+  } finally {
     loggingIn = false;
-    return;
-  }
-  $("login").disabled=$("guest").disabled=true;
-  field.readOnly=true;
-  $("login-error").textContent="Connectant amb el full…";
-  try{
-    const r=await rpc({action:"load",email});
-    player={email,name:r.name,firstName:r.firstName,lastName:r.lastName,avatar:r.avatar};
-    records=r.scores;
-    revision=r.revision;
-    pending=null;
-    try{
-      localStorage.setItem(GAME_ID+":email",email);
-      const cached=JSON.parse(localStorage.getItem(queueKey(email))||"null");
-      if(cached?.email===email && cached.action==="save" && typeof cached.scores==="object") pending=cached;
-    }catch{}
-    if(pending?.revision===revision){
-      keys.forEach(key=>{records[key]=Math.max(records[key]||0,pending.scores[key]||0);});
-    }
-    activatePlayer();
-    syncStatus("Rècords recuperats del Google Sheets.");
-    flushScores();
-  }catch(error){$("login-error").textContent=error.message;}
-  finally{
-    loggingIn=false;
     $("login").disabled=$("guest").disabled=field.readOnly=false;
   }
 }
@@ -764,9 +849,12 @@ function paintAvatars(){
     grid.append(button);
   }
 }
+function localProfileKey(email) {
+  return GAME_ID + ":perfil-local:" + email;
+}
 function savePilotProfile() {
   try {
-    localStorage.setItem(GAME_ID + ":pilot-profile", JSON.stringify({records, avatar: player.avatar}));
+    localStorage.setItem(localProfileKey(player.email), JSON.stringify({records, avatar: player.avatar}));
     return true;
   } catch {
     return false;
@@ -833,7 +921,7 @@ function useBonus(reward){
 }
 function start(block){
   active=block;
-  pilotRoundId = player?.pilot ? crypto.randomUUID() : null;
+  pilotRoundId = player?.email ? crypto.randomUUID() : null;
   const plan=block===8 ? shuffle([0,1,2,3,4,5,6,6,7,7]) : Array(SIZE).fill(block);
   const offsets=blocks.map(()=>rnd(0,11));
   const seen=new Set();
@@ -960,10 +1048,8 @@ function grade(value){
   for(const button of $("options").children) button.disabled=true;
 }
 function finish(){
-  if (player.pilot) {
-    savePilotProfile();
-    savePilotRound();
-  }
+  if (player.pilot) savePilotProfile();
+  if (player.email) savePilotRound();
   $("play").hidden=true;
   $("end").hidden=false;
   $("resultTitle").textContent=lives===0?"T’has quedat sense vides":"Resultat de la ronda";
@@ -1032,12 +1118,17 @@ window.addEventListener("message",event=>{
 $("change-profile").onclick=openProfile;
 $("player-form").onsubmit=login;
 $("guest").onclick=guest;
-$("sync-retry").onclick=()=>player?.pilot ? flushPilot() : flushScores();
+$("sync-retry").onclick=retrySaves;
+async function retrySaves() {
+  if (!player?.email) return;
+  if (pending) await flushScores();
+  if (pilotQueue.size) await flushPilot();
+}
 $("open-avatars").onclick=()=>{
   paintAvatars();
   $("avatar-dialog").showModal();
 };
-window.addEventListener("online",()=>player?.pilot ? flushPilot() : flushScores());
+window.addEventListener("online",retrySaves);
 $("player-dialog").addEventListener("cancel",event=>{
   if(!player || loggingIn) event.preventDefault();
 });
