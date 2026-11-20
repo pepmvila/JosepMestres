@@ -23,18 +23,91 @@ dialog::backdrop{background:#080c15db}
 #bonus-frame iframe{display:block;border:0;border-radius:10px;width:100%;height:min(72dvh,660px);background:#152927}
 #bonus-banner{border-radius:9px;background:#29443d;color:var(--accent);padding:8px 12px;margin:0 0 12px}
 .portrait{display:inline-grid;place-items:center;width:42px;height:42px;border-radius:9px;vertical-align:middle}.avatar-list .portrait{display:block;margin:0 auto 4px}.avatar-list .avatar-card{font-size:.8rem;max-width:126px}#sync-status:empty{display:none}</style>
+<style>:root{color-scheme:light;--bg:#101d35;--panel:#fff;--border:#dbe2ec;--ink:#142039;--muted:#52617a;--accent:#2055cb;--gold:#986014;--bad:#a52a3a;--cyan:#65e3e0}
+body{background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;padding:clamp(14px,3vw,32px)}
+.top{color:white;display:flex;align-items:center;gap:16px;margin:0 0 22px}
+.top h1{font-size:clamp(1.85rem,5vw,2.9rem);letter-spacing:-.035em;margin:2px 0}
+.top .eyebrow{color:var(--cyan);letter-spacing:.09em;margin:0}
+.mark{display:grid;place-items:center;background:var(--cyan);color:var(--bg);width:48px;height:48px;flex:none;border-radius:14px;transform:rotate(-5deg);font-size:22px;font-weight:850}
+.top .muted,#sync-status{color:#c5d4ed}
+.profile-bar button{background:#203350;color:white;border-color:#7586a1}
+#player-badge{color:var(--cyan)}
+.panel{background:white;border:0;border-radius:22px;padding:clamp(16px,3vw,28px);box-shadow:0 6px 0 #ffffff16}
+.grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));margin-top:12px}
+.tile{background:white;border:2px solid transparent;border-radius:14px;padding:16px;box-shadow:0 3px 0 #ffffff20}
+.tile:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 0 #65e3e080;background:#edf3ff}
+.tile.challenge,.tile.mix{background:#edf3ff;border-color:#dbe7ff;grid-column:auto}
+.tile small:last-child{color:var(--accent);font-weight:700}
+button{background:#f7f9fd;color:var(--ink);border:1px solid var(--border);border-radius:12px}
+button.primary{background:var(--accent);color:white;font-weight:750}
+.field input,#player-name,.notebook input{background:white;color:var(--ink);border:1px solid #7586a1}
+.avatar-list [aria-pressed=true]{background:#e9effb}
+.game-hud{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.game-hud>div{background:#203350;color:white;border:1px solid #3b5274;border-radius:14px;padding:10px 14px}
+.game-hud small{display:block;color:#c5d4ed}
+.game-hud strong{font-size:clamp(1rem,3vw,1.5rem)}
+#lives{color:#ff9ca7;letter-spacing:3px}
+#counter{margin-left:auto;color:var(--accent);background:#e9effb;border-radius:18px;padding:4px 12px;font-weight:700}
+.formula{color:var(--ink);background:#f7f9fd;border:1px solid var(--border);border-radius:14px;text-align:center;padding:14px;overflow:auto;font-size:clamp(1.15rem,4vw,2rem)}
+.options button{min-height:64px;padding:12px 24px}
+.good{color:#167743}
+#bonus-offer,#bonus-banner{background:#fff4db;color:#60410a;border-color:#ead49d}
+.notebook{margin:14px 0;border:1px solid #b8c9ef;background:#f6f9ff;border-radius:14px;padding:14px}
+.notebook summary{font-weight:700;color:var(--accent)}
+.notebook label{display:block;margin-top:9px}
+.notebook input{width:min(100%,38ch);padding:8px;border-radius:9px}
+#notebook-lines{padding-left:25px;margin:8px 0}
+#notebook-preview{margin:8px 0;min-height:1.4em;overflow:auto}
+#keypad{position:fixed;z-index:20;right:max(12px,calc((100vw - 1040px)/2));bottom:max(12px,env(safe-area-inset-bottom));width:min(350px,calc(100vw - 24px));max-height:70dvh;overflow:auto;background:#203350;color:white;border:1px solid #7586a1;border-radius:18px;box-shadow:0 14px 44px #101d3560;padding:12px}
+#answer,#notebook-input{scroll-margin-top:16px}
+#keypad .bar{margin-bottom:6px}
+#keypad-display{display:block;overflow:auto;white-space:nowrap;min-height:42px;background:#f2f7ff;color:var(--ink);padding:8px;border-radius:10px;margin-bottom:8px;text-align:right}
+.keypad-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.keypad-grid button{padding:4px;min-height:38px;font-size:1.08rem;font-weight:650}
+.keypad-grid [data-key="enter"]{grid-column:span 4}
+@media(max-width:480px){.game-hud{gap:5px}.game-hud>div{padding:7px}.game-hud small{font-size:.72rem}}
+</style>
+<script>
+let mathLoaded;
+const mathReady = new Promise(resolve => { mathLoaded = resolve; });
+window.MathJax = {chtml: {adaptiveCSS: false}, startup: {typeset: false, ready() {
+  MathJax.startup.defaultReady();
+  MathJax.startup.promise.then(() => {
+    const stylesheet = MathJax.chtmlStylesheet();
+    if (!stylesheet.isConnected) document.head.append(stylesheet);
+  }).then(mathLoaded, mathLoaded);
+}}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-chtml.js" onerror="mathLoaded()"></script>
 </head>
 <body>
 <main>
-<p id="sync-status" class="muted" role="status"></p><button id="sync-retry" type="button" hidden>Reintenta el desament</button><header class="top"><p class="eyebrow">MATEMÀTIQUES · 1r D’ESO · UNITAT 3</p><h1>Els nombres enters</h1><p class="muted">Tria un bloc i resol una ronda de 10 reptes. Comences amb 3 vides. Cada encert suma 10 punts i cada errada costa una vida.</p></header>
+<p id="sync-status" class="muted" role="status"></p><button id="sync-retry" type="button" hidden>Reintenta el desament</button><header class="top"><div class="mark" aria-hidden="true">±</div><div><p class="eyebrow">LABORATORI DE MATEMÀTIQUES · 1r ESO</p><h1>Nombres enters</h1><p class="muted">Tria un bloc i practica al teu ritme.</p></div></header>
 <section id="home" aria-label="Tria un bloc"><div class="profile-bar"><span id="player-badge"></span><button id="change-profile" type="button">Canvia de jugador</button><button id="open-avatars" type="button" hidden>Tria l’avatar</button></div><div class="grid" id="menu"></div></section>
-<section class="panel" id="play" hidden aria-labelledby="blockTitle">
-<div class="bar"><button id="back" type="button">← Blocs</button><div class="stats"><span id="counter"></span><span id="points"></span><span id="streak"></span><span id="lives"></span></div></div>
+<section id="play" hidden aria-labelledby="blockTitle">
+<div class="game-hud" aria-label="Estat de la partida">
+<div><small>Punts</small><strong id="points"></strong></div>
+<div><small>Vides</small><strong id="lives"></strong></div>
+<div><small>Encerts seguits</small><strong id="streak"></strong></div>
+</div>
+<div class="panel">
+<div class="bar"><button id="back" type="button">← Blocs</button><button id="finish-early" type="button" hidden>Acaba i desa la ronda</button><span id="counter"></span></div>
 <progress id="progress" max="10" value="0" aria-label="Reptes resolts"></progress>
 <h2 id="blockTitle"></h2><p id="bonus-banner" role="status" hidden></p>
 <p id="prompt" tabindex="-1"></p><div id="formula" class="formula" hidden></div><div class="line" id="numberLine" hidden></div>
-<form id="form" novalidate><div class="field"><input id="answer" aria-label="Resposta entera" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Resultat"><button type="button" id="minus" aria-label="Canvia el signe de la resposta">±</button><button class="primary" id="check">Comprova</button></div></form>
+<form id="form" novalidate><div class="field"><input id="answer" aria-label="Resposta entera" inputmode="none" autocomplete="off" maxlength="24" spellcheck="false" placeholder="Resultat"><button class="primary" id="check">Comprova</button></div></form>
 <div id="options" class="options" hidden></div>
+<details id="notebook" class="notebook" hidden>
+<summary>Quadern de passos</summary>
+<p>Escriu com queda l’operació després de cada pas i comprova si conserva el mateix valor.</p>
+<ol id="notebook-lines"></ol>
+<label for="notebook-input">Expressió del pas següent</label>
+<input id="notebook-input" inputmode="none" autocomplete="off" spellcheck="false" maxlength="120">
+<button id="notebook-check" type="button">Comprova el pas</button>
+<div id="notebook-preview" aria-hidden="true"></div>
+<p id="notebook-status" role="status"></p>
+</details>
 <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
 <div class="tools"><button type="button" id="hint">Pista</button><button type="button" id="next" class="primary" hidden>Següent →</button></div>
 <section id="bonus-offer" aria-labelledby="bonus-offer-title" hidden>
@@ -43,9 +116,10 @@ dialog::backdrop{background:#080c15db}
 <div class="tools"><button id="play-bonus" class="primary" type="button">Juga al minijoc</button><button id="skip-bonus" type="button">Salta el minijoc</button></div>
 </section>
 <ol id="steps" class="steps" aria-label="Resolució pas a pas" hidden></ol>
-</section>
+</div></section>
 <section class="panel" id="end" hidden aria-labelledby="resultTitle"><h2 id="resultTitle" tabindex="-1">Resultat de la ronda</h2><p id="summary"></p><p id="end-bonus" hidden></p><div class="tools"><button id="retry" class="primary">Torna a jugar</button><button id="homeEnd">Tria un altre bloc</button></div><div id="review" class="review"></div></section>
 </main>
+<aside id="keypad" aria-label="Teclat de calculadora" hidden><div class="bar"><strong>Teclat</strong><button id="keypad-close" type="button" aria-label="Tanca el teclat">✕</button></div><output id="keypad-display"></output><div class="keypad-grid"><button type="button" data-key="7" aria-label="7">7</button><button type="button" data-key="8" aria-label="8">8</button><button type="button" data-key="9" aria-label="9">9</button><button type="button" data-key="÷" aria-label="÷">÷</button><button type="button" data-key="delete" aria-label="Esborra un caràcter">⌫</button><button type="button" data-key="4" aria-label="4">4</button><button type="button" data-key="5" aria-label="5">5</button><button type="button" data-key="6" aria-label="6">6</button><button type="button" data-key="×" aria-label="×">×</button><button type="button" data-key="^" aria-label="Potència">xⁿ</button><button type="button" data-key="1" aria-label="1">1</button><button type="button" data-key="2" aria-label="2">2</button><button type="button" data-key="3" aria-label="3">3</button><button type="button" data-key="-" aria-label="Menys">−</button><button type="button" data-key="√" aria-label="Arrel quadrada">√</button><button type="button" data-key="0" aria-label="0">0</button><button type="button" data-key="(" aria-label="(">(</button><button type="button" data-key=")" aria-label=")">)</button><button type="button" data-key="+" aria-label="+">+</button><button type="button" data-key="abs" aria-label="Valor absolut">|x|</button><button type="button" data-key="enter" aria-label="Comprova">Comprova</button><button type="button" data-key="clear" aria-label="Esborra tot">C</button></div></aside>
 <dialog id="player-dialog" class="panel" aria-labelledby="player-title">
 <form id="player-form">
 <h2 id="player-title">Entra amb el correu del centre</h2>
@@ -119,6 +193,178 @@ function render(tree) {
     default: return (kind==="·"||kind===":" ? wrapped(left,a) : a)+" "+kind+" "+wrapped(right,b);
   }
 }
+function latex(tree) {
+  if (typeof tree === "number") return String(tree);
+  const {kind, left, right} = tree;
+  const a = latex(left);
+  const b = right === undefined ? "" : latex(right);
+  const wrap = (node, value) => typeof node === "number" && node < 0 ? "(" + value + ")" : value;
+  switch (kind) {
+    case "()": return "\\left(" + a + "\\right)";
+    case "[]": return "\\left[" + a + "\\right]";
+    case "||": return "\\left|" + a + "\\right|";
+    case "√": return "\\sqrt{" + a + "}";
+    case "^": return "{" + wrap(left, a) + "}^{" + b + "}";
+    case "neg": return "-" + wrap(left, a);
+    case "·": return wrap(left, a) + "\\cdot " + wrap(right, b);
+    case ":": return wrap(left, a) + "\\div " + wrap(right, b);
+    default: return a + (kind === "−" ? "-" : kind) + wrap(right, b);
+  }
+}
+
+const mathVersions = new WeakMap();
+function paintMath(element, tex, fallback) {
+  const version = {};
+  mathVersions.set(element, version);
+  element.textContent = fallback;
+  if (!tex) return;
+  const engine = window.MathJax;
+  (engine?.startup?.promise || mathReady).then(() => {
+    if (mathVersions.get(element) !== version || !window.MathJax?.tex2chtml) return;
+    try { element.replaceChildren(window.MathJax.tex2chtml(tex)); } catch {}
+  }).catch(() => {});
+}
+
+function parseNotebook(text) {
+  const compact = text.replace(/\s/g, "").replace(/[−–]/g, "-").replace(/[×*]/g, "·").replace(/[÷/]/g, ":");
+  const tokens = compact.match(/\d+|[+\-·:^()[\]|√]/g) || [];
+  if (!tokens.length || tokens.join("") !== compact || tokens.length > 90) throw Error();
+  let pos = 0;
+  function take(token) {
+    if (tokens[pos] !== token) return false;
+    pos++;
+    return true;
+  }
+  function atom() {
+    for (const [open, close, build] of [["(", ")", group], ["[", "]", bracket], ["|", "|", abs]]) {
+      if (!take(open)) continue;
+      const tree = sum();
+      if (!take(close)) throw Error();
+      return build(tree);
+    }
+    if (take("√")) return root(atom());
+    const token = tokens[pos++];
+    if (!/^\d{1,9}$/.test(token || "")) throw Error();
+    return Number(token);
+  }
+  function signedPower() {
+    if (take("-")) return neg(signedPower());
+    if (take("+")) return signedPower();
+    const base = atom();
+    return take("^") ? pow(base, signedPower()) : base;
+  }
+  function product() {
+    let tree = signedPower();
+    while (["·", ":"].includes(tokens[pos])) tree = op(tokens[pos++], tree, signedPower());
+    return tree;
+  }
+  function sum() {
+    let tree = product();
+    while (["+", "-"].includes(tokens[pos])) tree = op(tokens[pos++] === "+" ? "+" : "−", tree, product());
+    return tree;
+  }
+  const tree = sum();
+  if (pos !== tokens.length) throw Error();
+  function value(node) {
+    if (typeof node === "number") return node;
+    const a = value(node.left), b = node.right === undefined ? undefined : value(node.right);
+    const result = evaluate(node.kind, a, b);
+    if (!Number.isFinite(result) || Math.abs(result) > Number.MAX_SAFE_INTEGER) throw Error();
+    return result;
+  }
+  return {tree, value: value(tree)};
+}
+
+let keypadTarget = null;
+function closeKeypad() {
+  $("keypad").hidden = true;
+  keypadTarget = null;
+}
+function updateKeypad() {
+  if (!keypadTarget) return;
+  const raw = keypadTarget.value;
+  let tex;
+  if (keypadTarget.id === "notebook-input") {
+    try { tex = latex(parseNotebook(raw).tree); } catch {}
+  }
+  paintMath($("keypad-display"), tex, raw || "0");
+  if (keypadTarget.id === "notebook-input") paintMath($("notebook-preview"), tex, raw);
+}
+for (const field of [$("answer"), $("notebook-input")]) {
+  const showKeypad = () => {
+    if (field.disabled) return;
+    keypadTarget = field;
+    for (const button of $("keypad").querySelectorAll("[data-key]")) {
+      button.disabled = field.id === "answer" && ["÷", "×", "^", "√", "(", ")"].includes(button.dataset.key);
+    }
+    $("keypad").hidden = false;
+    updateKeypad();
+    if (window.matchMedia("(max-width: 560px)").matches &&
+        field.getBoundingClientRect().bottom > $("keypad").getBoundingClientRect().top) {
+      field.scrollIntoView({block: "start"});
+    }
+  };
+  field.addEventListener("focus", showKeypad);
+  field.addEventListener("click", showKeypad);
+  field.addEventListener("input", updateKeypad);
+}
+$("keypad-close").onclick = closeKeypad;
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && keypadTarget) closeKeypad();
+});
+$("keypad").addEventListener("pointerdown", event => {
+  if (event.target.closest("[data-key]")) event.preventDefault();
+});
+$("keypad").addEventListener("click", event => {
+  const key = event.target.closest("[data-key]")?.dataset.key;
+  const field = keypadTarget;
+  if (!key || !field || field.disabled) return;
+  if (key === "enter") {
+    if (field.id === "answer") $("form").requestSubmit();
+    else checkNotebook();
+    return;
+  }
+  const {selectionStart: start, selectionEnd: end} = field;
+  if (key === "delete") field.setRangeText("", start === end ? Math.max(0, start - 1) : start, end, "end");
+  else if (key === "clear") field.value = "";
+  else if (key === "abs") {
+    field.setRangeText("|" + field.value.slice(start, end) + "|", start, end, "end");
+    if (start === end) field.setSelectionRange(start + 1, start + 1);
+  } else field.setRangeText(key, start, end, "end");
+  field.focus();
+  updateKeypad();
+});
+
+function checkNotebook() {
+  const input = $("notebook-input");
+  if (input.disabled) return;
+  const status = $("notebook-status");
+  let step;
+  try { step = parseNotebook(input.value); }
+  catch {
+    status.textContent = "Revisa els signes i els parèntesis. Escriu només l’expressió del pas.";
+    return;
+  }
+  if (Math.abs(step.value - round[index].answer) > 1e-9) {
+    status.textContent = "Aquest pas canvia el valor de l’operació. Revisa’l i torna-ho a provar.";
+    return;
+  }
+  const row = document.createElement("li");
+  paintMath(row, "= " + latex(step.tree), "= " + input.value);
+  $("notebook-lines").append(row);
+  status.textContent = "Pas correcte. L’expressió conserva el mateix valor.";
+  input.value = "";
+  input.focus();
+  updateKeypad();
+}
+$("notebook-check").onclick = checkNotebook;
+$("notebook-input").addEventListener("keydown", event => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    checkNotebook();
+  }
+});
+
 function advance(tree){
   const {kind,left,right}=tree;
   if(typeof left!=="number") return op(kind,advance(left),right);
@@ -126,13 +372,13 @@ function advance(tree){
   return evaluate(kind,left,right);
 }
 function expression(tree,hint){
-  const formula=render(tree), steps=[];
+  const formula=render(tree), tex=latex(tree), steps=[], texSteps=[];
   while(typeof tree!=="number"){
     tree=advance(tree);
     const step=render(tree);
-    if(step!==formula && step!==steps.at(-1)) steps.push(step);
+    if(step!==formula && step!==steps.at(-1)){steps.push(step);texSteps.push(latex(tree));}
   }
-  return {prompt:"Calcula el resultat.",formula,answer:tree,hint,steps};
+  return {prompt:"Calcula el resultat.",formula,tex,answer:tree,hint,steps,texSteps};
 }
 const hierarchy="Resol primer els grups i els valors absoluts. Fes els productes i les divisions abans de les sumes i les restes.";
 const fullOrder="Resol els grups de dins cap a fora. Dins cada grup, fes les potències i arrels abans dels productes i divisions.";
@@ -202,7 +448,8 @@ function shuffle(items){
 const SIZE=10;
 const MAX_LIVES=3;
 const BONUS_GOAL=5;
-const SCORE_PER_ANSWER=10;
+const pointsFor = type => type === 7 ? 40 : type === 6 ? 30 : 10;
+let correctCount, answeredCount, roundMax;
 const avatars=[
   ["🦊","Guineu"],["🐱","Gat"],["🐸","Granota"],["🐼","Panda"],
   ["🦉","Mussol"],["🐙","Pop"],["🤖","Robot"],["🚀","Coet"]
@@ -299,7 +546,7 @@ function savePilotRound() {
     joc: 'enters',
     categoria: PILOT_CATEGORIES[active],
     punts: score,
-    maxim: SIZE * SCORE_PER_ANSWER
+    maxim: roundMax
   };
   pilotRoundId = null;
   pilotQueue.set(attempt.idPartida, attempt);
@@ -599,8 +846,10 @@ function start(block){
       if(!seen.has(key)) break;
     }
     seen.add(key);
-    return item;
+    return {...item, points: pointsFor(type), notebook: type === 6 || type === 7};
   });
+  correctCount = answeredCount = 0;
+  roundMax = round.reduce((total, item) => total + item.points, 0);
   index=score=streak=bestStreak=bonusPoints=bonusStreak=0;
   lives=MAX_LIVES;
   bonusNotice="";
@@ -613,7 +862,8 @@ function start(block){
 function stats(){
   $("counter").textContent="Repte "+(index+1)+" / "+SIZE;
   $("points").textContent=(score+bonusPoints)+" punts";
-  $("streak").textContent="Ratxa: "+streak+" · Premi: "+bonusStreak+"/"+BONUS_GOAL;
+  $("streak").textContent=streak;
+  $("finish-early").hidden = !answeredCount;
   $("lives").textContent="♥".repeat(lives)+"♡".repeat(MAX_LIVES-lives)+" · "+lives+(lives===1?" vida":" vides");
   $("progress").value=index+Number(locked);
 }
@@ -626,7 +876,16 @@ function show(){
   stats();
   const item=round[index];
   $("prompt").textContent=item.prompt;
-  $("formula").textContent=item.formula??"";
+  closeKeypad();
+  $("notebook").hidden = !item.notebook;
+  $("notebook").open = false;
+  $("notebook-input").value = "";
+  $("notebook-input").disabled = $("notebook-check").disabled = false;
+  $("notebook-lines").replaceChildren();
+  $("notebook-status").textContent = "";
+  paintMath($("notebook-preview"), null, "");
+  paintMath($("formula"), item.tex || (item.choices ? item.formula.replace("□", "\\square") : null), item.formula ?? "");
+  $("prompt").textContent += " (" + item.points + " punts)";
   $("formula").hidden=!item.formula;
   $("numberLine").hidden=item.line===undefined;
   $("numberLine").replaceChildren();
@@ -650,7 +909,7 @@ function show(){
     $("options").append(button);
   }
   $("answer").value="";
-  for(const id of ["answer","minus","check"]) $(id).disabled=false;
+  for(const id of ["answer","check"]) $(id).disabled=false;
   $("feedback").textContent="";
   $("hint").hidden=false;
   $("next").hidden=$("steps").hidden=true;
@@ -664,9 +923,11 @@ function grade(value){
   if(locked) return;
   locked=true;
   const item=round[index];
+  answeredCount++;
   const correct=value===item.answer;
   if(correct){
-    score+=SCORE_PER_ANSWER;
+    score+=item.points;
+    correctCount++;
     bonusStreak++;
     bestStreak=Math.max(bestStreak,++streak);
     trackRecord();
@@ -676,10 +937,10 @@ function grade(value){
     misses.push({item,value});
   }
   stats();
-  feedback(correct?"Correcte! +"+SCORE_PER_ANSWER+" punts":"Has escrit "+fmt(value)+". La resposta correcta és "+fmt(item.answer)+". Perds una vida.",correct?"good":"bad");
-  $("steps").replaceChildren(...item.steps.map(step=>{
+  feedback(correct?"Correcte! +"+item.points+" punts":"Has escrit "+fmt(value)+". La resposta correcta és "+fmt(item.answer)+". Perds una vida.",correct?"good":"bad");
+  $("steps").replaceChildren(...item.steps.map((step, stepIndex)=>{
     const li=document.createElement("li");
-    li.textContent=item.formula && !item.choices ? "= "+step : step;
+    paintMath(li, item.texSteps ? "= " + item.texSteps[stepIndex] : null, item.texSteps ? "= " + step : step);
     return li;
   }));
   $("steps").hidden=false;
@@ -694,7 +955,8 @@ function grade(value){
     $("next").textContent=lives===0 || index+1===SIZE?"Veure el resultat →":"Següent →";
     $("next").focus();
   }
-  for(const id of ["answer","minus","check"]) $(id).disabled=true;
+  for(const id of ["answer","check","notebook-input","notebook-check"]) $(id).disabled=true;
+  closeKeypad();
   for(const button of $("options").children) button.disabled=true;
 }
 function finish(){
@@ -705,9 +967,10 @@ function finish(){
   $("play").hidden=true;
   $("end").hidden=false;
   $("resultTitle").textContent=lives===0?"T’has quedat sense vides":"Resultat de la ronda";
+  closeKeypad();
   $("summary").textContent=player.name+" · "+blocks[active][0]+
-    " · "+(score+bonusPoints)+" punts ("+score+" dels reptes i "+bonusPoints+" de premi). "+
-    (score/SCORE_PER_ANSWER)+" encerts de "+(index+1)+" reptes jugats. Millor ratxa: "+bestStreak+".";
+    " · "+score+"/"+roundMax+" punts dels reptes i "+bonusPoints+" de premi. "+
+    correctCount+" encerts de "+answeredCount+" reptes jugats. Millor ratxa: "+bestStreak+".";
   $("end-bonus").textContent=bonusNotice;
   $("end-bonus").hidden=!bonusNotice;
   $("review").replaceChildren();
@@ -721,8 +984,9 @@ function finish(){
       title.textContent=item.formula??item.prompt;
       const body=document.createElement("p");
       body.textContent="La teva resposta: "+fmt(value)+". Resposta correcta: "+fmt(item.answer)+".";
+      if (item.tex) paintMath(title, item.tex, item.formula);
       const solution=document.createElement("p");
-      solution.textContent=item.steps.join(" → ");
+      paintMath(solution, item.texSteps?.join("\\;=\\;"), item.steps.join(" → "));
       group.append(title,body,solution);
       $("review").append(group);
     }
@@ -730,24 +994,22 @@ function finish(){
   $("resultTitle").focus();
 }
 function home(){
+  closeKeypad();
   $("play").hidden=$("end").hidden=true;
   $("home").hidden=false;
   $("menu").children[active]?.focus();
 }
 $("form").onsubmit=event=>{
   event.preventDefault();
-  const value=$("answer").value.trim().replace(/^−/,"-");
-  if(!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(Number(value))){
-    feedback("Escriu un nombre enter, per exemple −7, 0 o 12.");
+  const raw = $("answer").value.trim().replace(/−/g, "-");
+  const absolute = raw.match(/^\|\s*([+-]?\d+)\s*\|$/);
+  const value = absolute ? Math.abs(Number(absolute[1])) : Number(raw);
+  if (!(absolute || /^[+-]?\d+$/.test(raw)) || !Number.isSafeInteger(value)) {
+    feedback("Escriu el resultat com a nombre enter, per exemple −7, 0 o 12.");
     $("answer").focus();
     return;
   }
-  grade(Number(value));
-};
-$("minus").onclick=()=>{
-  const field=$("answer"), value=field.value.trim();
-  field.value=/^[-−]/.test(value)?value.slice(1):"-"+value.replace(/^\+/,"");
-  field.focus();
+  grade(value);
 };
 $("hint").onclick=()=>feedback(round[index].hint);
 $("next").onclick=nextQuestion;
@@ -788,6 +1050,7 @@ avatars.forEach(([icon,label],i)=>{
   $("avatars").append(button);
 });
 $("back").onclick=home;
+$("finish-early").onclick=()=>{ if (answeredCount && !$("play").hidden) finish(); };
 $("homeEnd").onclick=home;
 $("retry").onclick=()=>start(active);
 blocks.forEach(([title,subtitle],i)=>{
