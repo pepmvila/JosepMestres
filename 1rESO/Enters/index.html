@@ -235,6 +235,80 @@ let records={},revision="",pending=null,syncing=false,loggingIn=false,avatarSavi
 document.documentElement.style.setProperty("--avatar-atlas",'url("'+AVATAR_ATLAS+'")');
 document.documentElement.style.setProperty("--historic-atlas",'url("'+HISTORIC_ATLAS+'")');
 
+const PILOT_URL = 'https://script.google.com/macros/s/AKfycbx2o4iFcn3CcfnR2FB9jaIhOPu-fe-6ghErxbzbCh2T9dl1PZBXXkPIy4jfuaB5QJcHWw/exec';
+const PILOT_EMAIL = 'prova@institutmestres.com';
+const PILOT_CATEGORIES = [
+  'positius_negatius', 'conjunt_enters', 'sumes_restes',
+  'sumes_restes_parentesis', 'multiplicacio_divisio', 'potencies_arrels',
+  'combinades_sense', 'combinades_completes', 'repte_mixt'
+];
+const pilotQueue = new Map();
+const pilotStoragePrefix = 'puntuacions-1eso:enters:intent:';
+let pilotRoundId = null;
+let pilotSyncing = false;
+
+function loadPilotQueue() {
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (!key.startsWith(pilotStoragePrefix)) continue;
+      const attempt = JSON.parse(localStorage.getItem(key));
+      if (attempt?.correu === PILOT_EMAIL && key === pilotStoragePrefix + attempt.idPartida) {
+        pilotQueue.set(attempt.idPartida, attempt);
+      }
+    }
+  } catch {}
+}
+
+async function flushPilot() {
+  if (pilotSyncing || !pilotQueue.size) return;
+  pilotSyncing = true;
+  syncStatus('Desant les partides de prova…');
+  try {
+    for (const [id, attempt] of pilotQueue) {
+      const response = await fetch(PILOT_URL, {
+        method: 'POST',
+        body: new URLSearchParams(attempt),
+        credentials: 'omit',
+        signal: AbortSignal.timeout(20000)
+      });
+      if (!response.ok) throw new Error('Error de connexió amb el full.');
+      const result = await response.json();
+      if (!result.ok) {
+        throw new Error(result.error === 'categoria_inactiva_o_inexistent'
+          ? 'Cal activar la categoria «' + attempt.categoria + '» a la pestanya Jocs.'
+          : 'El full ha rebutjat la partida (' + (result.error || 'error desconegut') + ').');
+      }
+      pilotQueue.delete(id);
+      try { localStorage.removeItem(pilotStoragePrefix + id); } catch {}
+    }
+    syncStatus('Partida de prova desada a Intents.');
+  } catch (error) {
+    syncStatus((error instanceof TypeError || error.name === 'TimeoutError'
+      ? 'El full no ha confirmat el desament.'
+      : error.message) + ' Partida pendent.', true);
+  } finally {
+    pilotSyncing = false;
+  }
+}
+
+function savePilotRound() {
+  if (!pilotRoundId) return;
+  const attempt = {
+    idPartida: pilotRoundId,
+    correu: PILOT_EMAIL,
+    joc: 'enters',
+    categoria: PILOT_CATEGORIES[active],
+    punts: score,
+    maxim: SIZE * SCORE_PER_ANSWER
+  };
+  pilotRoundId = null;
+  pilotQueue.set(attempt.idPartida, attempt);
+  try {
+    localStorage.setItem(pilotStoragePrefix + attempt.idPartida, JSON.stringify(attempt));
+  } catch {}
+  void flushPilot();
+}
+
 function rpc(payload){
   return new Promise((resolve,reject)=>{
     const requestId=crypto.randomUUID();
@@ -296,7 +370,7 @@ function trackRecord(){
   if(total<=(records[key]||0)) return;
   records[key]=total;
   paintRecords();
-  if(player.guest) return;
+  if(player.guest || player.pilot) return;
   pending={id:crypto.randomUUID(),action:"save",email:player.email,revision:pending?.revision??revision,scores:{...records}};
   const backedUp=persistPending();
   if(!syncing) syncStatus(backedUp?"Rècord pendent de desar.":"Rècord pendent. Mantén la pàgina oberta.",true);
@@ -354,6 +428,10 @@ function activatePlayer(){
   $("menu").children[0].focus();
 }
 function openProfile(){
+  if (pilotSyncing || (player?.pilot && !$("play").hidden)) {
+    if (!pilotSyncing) syncStatus("Acaba la ronda o torna al menú abans de canviar de jugador.");
+    return;
+  }
   if(syncing || avatarSaving || pending){
     syncStatus("Acaba de desar els canvis abans de canviar de jugador.",Boolean(pending));
     return;
@@ -368,6 +446,24 @@ async function login(event){
   if(loggingIn) return;
   loggingIn=true;
   const field=$("player-name"),email=field.value.trim().toLowerCase();
+  if (email === PILOT_EMAIL) {
+    player = {email, name: "Compte de prova", firstName: "Compte", lastName: "Prova", avatar: null, pilot: true};
+    records = {};
+    try {
+      const profile = JSON.parse(localStorage.getItem(GAME_ID + ":pilot-profile") || "null");
+      if (profile) {
+        records = profile.records || {};
+        player.avatar = profile.avatar ?? null;
+      }
+      localStorage.setItem(GAME_ID + ":email", email);
+    } catch {}
+    loadPilotQueue();
+    activatePlayer();
+    syncStatus("Mode prova de Google Sheets.");
+    void flushPilot();
+    loggingIn = false;
+    return;
+  }
   $("login").disabled=$("guest").disabled=true;
   field.readOnly=true;
   $("login-error").textContent="Connectant amb el full…";
@@ -421,7 +517,23 @@ function paintAvatars(){
     grid.append(button);
   }
 }
+function savePilotProfile() {
+  try {
+    localStorage.setItem(GAME_ID + ":pilot-profile", JSON.stringify({records, avatar: player.avatar}));
+    return true;
+  } catch {
+    return false;
+  }
+}
 async function saveAvatar(index){
+  if (player.pilot) {
+    player.avatar = index;
+    const desat = savePilotProfile();
+    paintProfile();
+    paintAvatars();
+    $("avatar-status").textContent = desat ? "Avatar desat en aquest navegador." : "Avatar seleccionat per a aquesta sessió.";
+    return;
+  }
   if(syncing || pending || avatarSaving){
     $("avatar-status").textContent="Espera que els rècords estiguin desats.";
     return;
@@ -474,6 +586,7 @@ function useBonus(reward){
 }
 function start(block){
   active=block;
+  pilotRoundId = player?.pilot ? crypto.randomUUID() : null;
   const plan=block===8 ? shuffle([0,1,2,3,4,5,6,6,7,7]) : Array(SIZE).fill(block);
   const offsets=blocks.map(()=>rnd(0,11));
   const seen=new Set();
@@ -585,6 +698,10 @@ function grade(value){
   for(const button of $("options").children) button.disabled=true;
 }
 function finish(){
+  if (player.pilot) {
+    savePilotProfile();
+    savePilotRound();
+  }
   $("play").hidden=true;
   $("end").hidden=false;
   $("resultTitle").textContent=lives===0?"T’has quedat sense vides":"Resultat de la ronda";
@@ -653,12 +770,12 @@ window.addEventListener("message",event=>{
 $("change-profile").onclick=openProfile;
 $("player-form").onsubmit=login;
 $("guest").onclick=guest;
-$("sync-retry").onclick=flushScores;
+$("sync-retry").onclick=()=>player?.pilot ? flushPilot() : flushScores();
 $("open-avatars").onclick=()=>{
   paintAvatars();
   $("avatar-dialog").showModal();
 };
-window.addEventListener("online",flushScores);
+window.addEventListener("online",()=>player?.pilot ? flushPilot() : flushScores());
 $("player-dialog").addEventListener("cancel",event=>{
   if(!player || loggingIn) event.preventDefault();
 });
